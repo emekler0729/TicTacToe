@@ -5,7 +5,7 @@ import java.net.*;
 import java.io.*;
 import java.util.Date;
 
-public class Server implements Runnable {
+public class Server {
     private static final int defaultPort = 9090;
     private static ServerSocket listener;
     private static Socket player1;
@@ -19,20 +19,36 @@ public class Server implements Runnable {
             debug = true;
             jtaConsole = setupConsole();
         }
+
         listener = new ServerSocket(defaultPort);
         if(debug) {
-                jtaConsole.append("Server started at " + new Date() + " on port " + defaultPort +".\n");
+            jtaConsole.append("Server started at " + new Date() + " on port number " + defaultPort + ".\n");
         }
+
+        InitializeThread initialize = new InitializeThread();
+        initialize.start();
+
     }
 
-    public void run() {
-        try {
-            player1 = listener.accept();
-            player2 = listener.accept();
+    private class InitializeThread extends Thread {
+        public InitializeThread() {
+
         }
-        catch(IOException e) {
-            if(debug) {
-                jtaConsole.append(e.toString());
+
+        public void run() {
+            try {
+                player1 = listener.accept();
+                if (debug) {
+                    jtaConsole.append("Connection made from player1 at " + player1.getInetAddress() + ":" + player1.getPort() + ".\n");
+                }
+
+                player2 = listener.accept();
+                if (debug) {
+                    jtaConsole.append("Connection made from player2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".\n");
+                }
+            }
+            catch(IOException e) {
+                jtaConsole.append(e.toString() + "\n");
             }
         }
     }

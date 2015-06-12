@@ -1,17 +1,22 @@
 package io.github.emekler0729.TicTacToe.GUI;
 
+import io.github.emekler0729.TicTacToe.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
 public class MainMenu extends JFrame {
+    private static Client controller;
+
     private static JButton jbtSingleplayer = new JButton("1P");
     private static JButton jbtSplitscreen = new JButton("2P");
     private static JButton jbtMultiplayer = new JButton("Online");
     private static JButton jbtAbout = new JButton("About");
 
-    public MainMenu() {
+    public MainMenu(Client controller) {
         super("Tic Tac Toe");
+
+        this.controller = controller;
 
         setSize(300,300);
         setLocationRelativeTo(null);
@@ -64,15 +69,15 @@ public class MainMenu extends JFrame {
             Object button = e.getSource();
 
             if(button == jbtSingleplayer) {
-
+                controller.launchSingleplayer();
             }
 
             else if(button == jbtSplitscreen) {
-
+                controller.launchSplitscreen();
             }
 
             else if(button == jbtMultiplayer) {
-
+                controller.launchMultiplayer();
             }
 
             else if(button == jbtAbout) {

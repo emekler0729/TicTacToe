@@ -14,10 +14,6 @@ public class Server implements Runnable {
     private static boolean debug;
     private static JTextArea jtaConsole;
 
-    public static void main(String[] args) throws IOException {
-        Server server = new Server(true);
-    }
-
     public Server(boolean enableDebug) throws IOException {
         if(enableDebug) {
             debug = true;

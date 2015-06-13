@@ -10,6 +10,7 @@ public class Server {
     private static ServerSocket listener;
     private static Socket player1;
     private static Socket player2;
+    private static GameState state;
 
     private static CommDriver comms;
 
@@ -71,15 +72,33 @@ public class Server {
 
                 comms.toP2("SYMBOL O");
 
-                //start game session
+                GameSession game = new GameSession();
+                game.start();
 
-                comms.toAll("START");
-                if(debug) {
-                    jtaConsole.append("START command sent to all... Initialization completed.\n");
-                }
+
             }
             catch(IOException e) {
                 jtaConsole.append(e.toString() + "\n");
+            }
+        }
+    }
+
+    private class GameSession extends Thread {
+        public GameSession() {
+
+        }
+        public void run() {
+            state = new GameState();
+
+            comms.toAll("START");
+            if(debug) {
+                jtaConsole.append("START command sent to all... Initialization completed.\n");
+            }
+
+            while(!state.isEnded()) {
+                if(debug) {
+                    jtaConsole.append(comms.fromP1() + "\n");
+                }
             }
         }
     }
@@ -116,6 +135,36 @@ public class Server {
             p2Out.println(s);
         }
 
+        public String fromP1() {
+            try {
+                return p1In.readLine();
+            }
+
+            catch(IOException e) {
+                return "Error";
+            }
+        }
+
+    }
+    private class GameState {
+        private boolean isWon;
+        private boolean isDraw;
+        private int turnsTaken;
+        private char board[] = new char[9];
+
+        public GameState() {
+            isWon = false;
+            isDraw = false;
+            turnsTaken = 0;
+
+            for(int i = 0; i < 9; i++) {
+                board[i] = ' ';
+            }
+        }
+
+        public boolean isEnded() {
+            return (isWon || isDraw);
+        }
     }
 
     private static JTextArea setupConsole() {

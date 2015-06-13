@@ -1,13 +1,19 @@
 package io.github.emekler0729.TicTacToe.GUI;
 
+import io.github.emekler0729.TicTacToe.*;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+
 
 public class GameBoard extends JFrame {
+    private static Client controller;
     private static JButton button[] = new JButton[9];
 
-    public GameBoard() {
+    public GameBoard(Client controller) {
         super("Tic Tac Toe");
+
+        this.controller = controller;
 
         setSize(300,300);
         setLocationRelativeTo(null);
@@ -19,14 +25,57 @@ public class GameBoard extends JFrame {
         setVisible(true);
     }
 
-    private static JPanel setupBoard() {
+    private JPanel setupBoard() {
         JPanel panel = new JPanel(new GridLayout(3,3));
+
+        ButtonListener listener = new ButtonListener();
 
         for(int i = 0; i < 9; i++) {
             button[i] = new JButton();
+            button[i].addActionListener(listener);
             panel.add(button[i]);
         }
 
         return panel;
+    }
+
+    private class ButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            if(e.getSource() == button[0]) {
+                controller.sendRequest("MOVE 0");
+            }
+
+            else if(e.getSource() == button[1]) {
+                controller.sendRequest("MOVE 1");
+            }
+
+            else if(e.getSource() == button[2]) {
+                controller.sendRequest("MOVE 2");
+            }
+
+            else if(e.getSource() == button[3]) {
+                controller.sendRequest("MOVE 3");
+            }
+
+            else if(e.getSource() == button[4]) {
+                controller.sendRequest("MOVE 4");
+            }
+
+            else if(e.getSource() == button[5]) {
+                controller.sendRequest("MOVE 5");
+            }
+
+            else if(e.getSource() == button[6]) {
+                controller.sendRequest("MOVE 6");
+            }
+
+            else if(e.getSource() == button[7]) {
+                controller.sendRequest("MOVE 7");
+            }
+
+            else if(e.getSource() == button[8]) {
+                controller.sendRequest("MOVE 8");
+            }
+        }
     }
 }

@@ -82,6 +82,11 @@ public class Server {
         }
     }
     private class GameSession extends Thread {
+        boolean validMove = false;
+        int move;
+        String msg;
+        char player = 'X';
+
         public GameSession() {
 
         }
@@ -91,8 +96,34 @@ public class Server {
             comms.toAll("START");
 
             while(!state.isEnded()) {
-                // Game Logic Here
+                while(!validMove) {
+                    if(player == 'X') {
+                        msg = comms.fromP1();
+                        move = comms.parseMsg(msg);
+                        if (state.isValid(move, player)) {
+                            validMove = true;
+                            comms.toP1("VALID_MOVE");
+                            comms.toP2("OPPONENT_MOVE " + move);
+                        }
+                    }
+
+                    else if(player == 'O') {
+                        msg = comms.fromP2();
+                        move = comms.parseMsg(msg);
+                        if(state.isValid(move, player)) {
+                            validMove = true;
+                            comms.toP1("OPPONENT_MOVE" + move);
+                            comms.toP2("VALID MOVE");
+                        }
+                    }
+                }
+
+                state.checkState();
+                player = player == 'X' ? 'O' : 'X';
+                validMove = false;
             }
+
+            comms.toAll("END");
         }
     }
 
@@ -156,6 +187,15 @@ public class Server {
             }
         }
 
+        public int parseMsg(String s) {
+            if(s.startsWith("MOVE")) {
+                return Integer.parseInt(s.substring(s.length()-1));
+            }
+
+            else {
+                return -1;
+            }
+        }
     }
     private class GameState {
         private boolean isWon;
@@ -177,12 +217,9 @@ public class Server {
         public boolean isEnded() {
             return (isWon || isDraw);
         }
-        public void incrementTurns() {
-            turnsTaken++;
-        }
         public void checkState() {
             for(int row = 0; row < 3; row ++) {
-                if(board[row][0] == board[row][1] && board[row][1] == board[row][2]) {
+                if(board[row][0] != ' ' && board[row][0] == board[row][1] && board[row][1] == board[row][2]) {
                     isWon = true;
                     winner = board[row][0];
                     return;
@@ -190,20 +227,20 @@ public class Server {
             }
 
             for(int col = 0; col < 3; col++) {
-                if(board[0][col] == board[1][col] && board[1][col] == board[2][col]) {
+                if(board[0][col] != ' ' && board[0][col] == board[1][col] && board[1][col] == board[2][col]) {
                     isWon = true;
                     winner = board[0][col];
                     return;
                 }
             }
 
-            if(board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
+            if(board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
                 isWon = true;
                 winner = board[0][0];
                 return;
             }
 
-            else if(board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
+            else if(board[0][2] != ' ' && board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
                 isWon = true;
                 winner = board[1][1];
                 return;
@@ -217,10 +254,23 @@ public class Server {
         public char getWinner() {
             return winner;
         }
-        public boolean isValid(int n) {
-            return board[n/3][n%3] == ' ' ? true : false;
+        public boolean isValid(int n, char c) {
+            boolean valid = board[n/3][n%3] == ' ' ? true : false;
+
+            if (valid) {
+                board[n/3][n%3] = c;
+                turnsTaken++;
+            }
+
+            else {
+                debugMsg("Move was invalid.");
+            }
+
+            return valid;
         }
     }
+
+
 
     // Utility functions
     private static JTextArea setupConsole() {

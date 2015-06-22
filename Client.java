@@ -6,39 +6,31 @@ import java.io.*;
 import java.net.Socket;
 
 public class Client {
-    private static JFrame titlemenu;
-    private static JFrame game;
+    private static JFrame mainmenu;
+    private static JFrame gameboard;
     private static Socket server;
-
-    private static PrintWriter toServer;
-    private static BufferedReader fromServer;
-
-    private static boolean serverAccess = false;
+    private static CommsDriver comms;
 
     public static void main(String[] args) {
         Client client = new Client();
     }
 
     private Client() {
-        titlemenu = new MainMenu(this);
+        mainmenu = new MainMenu(this);
     }
 
     public void launchSingleplayer() {
-        titlemenu.setVisible(false);
+        mainmenu.setVisible(false);
         try {
             Server local = new Server(true);
             server = new Socket("localhost", 9090);
-
-            toServer = new PrintWriter(server.getOutputStream(),true);
-            fromServer = new BufferedReader(new InputStreamReader(server.getInputStream()));
-
-
+            comms = new CommsDriver();
         }
         catch(IOException e) {
 
         }
 
-        game = new GameBoard(this);
+        gameboard = new GameBoard(this);
     }
 
     public void launchSplitscreen() {
@@ -50,12 +42,42 @@ public class Client {
     }
 
     public void sendRequest(String s) {
-        if(serverAccess) {
-            toServer.println(s);
+        comms.sendRequest(s);
+    }
+
+    private class CommsDriver {
+        private PrintWriter toServer;
+        private BufferedReader fromServer;
+
+        private boolean serverAccess = false;
+
+        public CommsDriver() {
+            try {
+                toServer = new PrintWriter(server.getOutputStream(), true);
+                fromServer = new BufferedReader(new InputStreamReader(server.getInputStream()));
+            }
+
+            catch(IOException e) {
+
+            }
+        }
+
+        public void sendRequest(String s) {
+            if(serverAccess) {
+                toServer.println(s);
+            }
+        }
+        public String readResponse() {
+            String s;
+            try {
+                s = fromServer.readLine();
+                return s;
+            }
+
+            catch(IOException e) {
+                return "Error";
+            }
         }
     }
 
-    public void readResponse() {
-
-    }
 }

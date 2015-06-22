@@ -13,6 +13,8 @@ public class Client {
     private static PrintWriter toServer;
     private static BufferedReader fromServer;
 
+    private static boolean serverAccess = false;
+
     public static void main(String[] args) {
         Client client = new Client();
     }
@@ -29,6 +31,8 @@ public class Client {
 
             toServer = new PrintWriter(server.getOutputStream(),true);
             fromServer = new BufferedReader(new InputStreamReader(server.getInputStream()));
+
+
         }
         catch(IOException e) {
 
@@ -46,6 +50,12 @@ public class Client {
     }
 
     public void sendRequest(String s) {
-        toServer.println(s);
+        if(serverAccess) {
+            toServer.println(s);
+        }
+    }
+
+    public void readResponse() {
+
     }
 }

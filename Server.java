@@ -110,7 +110,7 @@ public class Server {
         private BufferedReader p1In;
         private BufferedReader p2In;
 
-        CommDriver() {
+        private CommDriver() {
 
         }
 
@@ -136,8 +136,21 @@ public class Server {
         }
 
         public String fromP1() {
+            String s;
             try {
-                return p1In.readLine();
+                s = new String(p1In.readLine());
+                return s;
+            }
+
+            catch(IOException e) {
+                return "Error";
+            }
+        }
+        public String fromP2() {
+            String s;
+            try {
+                s = new String(p2In.readLine());
+                return s;
             }
 
             catch(IOException e) {

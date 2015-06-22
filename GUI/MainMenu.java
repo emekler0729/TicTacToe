@@ -64,7 +64,7 @@ public class MainMenu extends JFrame {
     private static JPanel setupTitleImage() {
         JPanel panel = new JPanel();
 
-        panel.add(new JLabel("Insert Picture here."));
+        //panel.add(new JLabel("Insert Picture here."));
 
         return panel;
     }

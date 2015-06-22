@@ -42,11 +42,11 @@ public class Client {
     }
 
     public void launchSplitscreen() {
-        JOptionPane.showMessageDialog(null, "Oops! Not yet implemented.");
+        JOptionPane.showMessageDialog(null, "This mode is not yet implemented", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public void launchMultiplayer() {
-        JOptionPane.showMessageDialog(null, "Oops! Not yet implemented.");
+        JOptionPane.showMessageDialog(null, "This mode is not yet implemented", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public void sendRequest(String s) {

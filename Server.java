@@ -6,16 +6,18 @@ import java.io.*;
 import java.util.Date;
 
 public class Server {
+    // Server Member Variables
     private static final int defaultPort = 9090;
     private static ServerSocket listener;
     private static Socket player1;
     private static Socket player2;
+    private static GameSession game;
     private static GameState state;
-
     private static CommDriver comms;
-
-    private static boolean debug;
     private static JTextArea jtaConsole;
+
+    // Server State Variables
+    private static boolean debug;
 
     public Server(boolean enableDebug) throws IOException {
         if(enableDebug) {
@@ -23,10 +25,23 @@ public class Server {
             jtaConsole = setupConsole();
         }
 
-        comms = new CommDriver();
         listener = new ServerSocket(defaultPort);
+
+        debugMsg("Server started at " + new Date() + " on port number " + defaultPort + ".");
+
+        InitializeThread initialize = new InitializeThread();
+        initialize.start();
+    }
+    public Server(boolean enableDebug, int port) throws IOException {
+        if(enableDebug) {
+            debug = true;
+            jtaConsole = setupConsole();
+        }
+
+        comms = new CommDriver();
+        listener = new ServerSocket(port);
         if(debug) {
-            jtaConsole.append("Server started at " + new Date() + " on port number " + defaultPort + ".\n");
+            jtaConsole.append("Server started at " + new Date() + " on port number " + port + ".\n");
         }
 
         InitializeThread initialize = new InitializeThread();
@@ -40,39 +55,23 @@ public class Server {
 
         public void run() {
             try {
-                if(debug) {
-                    jtaConsole.append("Waiting for connection from player1...\n");
-                }
+                comms = new CommDriver();
+
+                debugMsg("Waiting for connection from Player 1...");
                 player1 = listener.accept();
-                if (debug) {
-                    jtaConsole.append("Connection made from player1 at " + player1.getInetAddress() + ":" + player1.getPort() + ".\n");
-                }
-
+                debugMsg("Connection made from Player 1 at " + player1.getInetAddress() + ":" + player1.getPort());
                 comms.setP1IO(new BufferedReader(new InputStreamReader(player1.getInputStream())), new PrintWriter(player1.getOutputStream(),true));
-
-                if (debug) {
-                    jtaConsole.append("Player 1 I/O streams established.\n");
-                }
-
+                debugMsg("Player 1 I/O streams established.");
                 comms.toP1("SYMBOL X");
 
-                if(debug) {
-                    jtaConsole.append("Waiting for connection from player2...\n");
-                }
+                debugMsg("Waiting for connection from Player 2...");
                 player2 = listener.accept();
-                if (debug) {
-                    jtaConsole.append("Connection made from player2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".\n");
-                }
-
+                debugMsg("Connection made from Player 2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".");
                 comms.setP2IO(new BufferedReader(new InputStreamReader(player2.getInputStream())), new PrintWriter(player2.getOutputStream(),true));
-
-                if (debug) {
-                    jtaConsole.append("Player 2 I/O streams established.\n");
-                }
-
+                debugMsg("Player 2 I/O streams established.");
                 comms.toP2("SYMBOL O");
 
-                GameSession game = new GameSession();
+                game = new GameSession();
                 game.start();
 
 
@@ -82,7 +81,6 @@ public class Server {
             }
         }
     }
-
     private class GameSession extends Thread {
         public GameSession() {
 
@@ -91,14 +89,9 @@ public class Server {
             state = new GameState();
 
             comms.toAll("START");
-            if(debug) {
-                jtaConsole.append("START command sent to all... Initialization completed.\n");
-            }
 
             while(!state.isEnded()) {
-                if(debug) {
-                    jtaConsole.append(comms.fromP1() + "\n");
-                }
+                // Game Logic Here
             }
         }
     }
@@ -127,18 +120,22 @@ public class Server {
         public void toAll(String s) {
             p1Out.println(s);
             p2Out.println(s);
+            debugMsg("Message sent to all: " + s);
         }
         public void toP1(String s) {
             p1Out.println(s);
+            debugMsg("Message sent to Player 1: " + s);
         }
         public void toP2(String s) {
             p2Out.println(s);
+            debugMsg("Message sent to Player 2: " + s);
         }
 
         public String fromP1() {
             String s;
             try {
                 s = new String(p1In.readLine());
+                debugMsg("Message received from Player 1: " + s);
                 return s;
             }
 
@@ -150,6 +147,7 @@ public class Server {
             String s;
             try {
                 s = new String(p2In.readLine());
+                debugMsg("Message received from Player 2: " + s);
                 return s;
             }
 
@@ -162,8 +160,9 @@ public class Server {
     private class GameState {
         private boolean isWon;
         private boolean isDraw;
+        private char winner;
         private int turnsTaken;
-        private char board[] = new char[9];
+        private char board[][] = new char[3][3];
 
         public GameState() {
             isWon = false;
@@ -171,15 +170,59 @@ public class Server {
             turnsTaken = 0;
 
             for(int i = 0; i < 9; i++) {
-                board[i] = ' ';
+                board[i/3][i%3] = ' ';
             }
         }
 
         public boolean isEnded() {
             return (isWon || isDraw);
         }
+        public void incrementTurns() {
+            turnsTaken++;
+        }
+        public void checkState() {
+            for(int row = 0; row < 3; row ++) {
+                if(board[row][0] == board[row][1] && board[row][1] == board[row][2]) {
+                    isWon = true;
+                    winner = board[row][0];
+                    return;
+                }
+            }
+
+            for(int col = 0; col < 3; col++) {
+                if(board[0][col] == board[1][col] && board[1][col] == board[2][col]) {
+                    isWon = true;
+                    winner = board[0][col];
+                    return;
+                }
+            }
+
+            if(board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
+                isWon = true;
+                winner = board[0][0];
+                return;
+            }
+
+            else if(board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
+                isWon = true;
+                winner = board[1][1];
+                return;
+            }
+
+            else if (turnsTaken == 9) {
+                isDraw = true;
+                return;
+            }
+        }
+        public char getWinner() {
+            return winner;
+        }
+        public boolean isValid(int n) {
+            return board[n/3][n%3] == ' ' ? true : false;
+        }
     }
 
+    // Utility functions
     private static JTextArea setupConsole() {
         JFrame frame = new JFrame("Tic Tac Toe Server Console");
 
@@ -200,5 +243,10 @@ public class Server {
         frame.setVisible(true);
 
         return text;
+    }
+    private static void debugMsg(String s) {
+        if(debug) {
+            jtaConsole.append(s + "\n");
+        }
     }
 }

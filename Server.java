@@ -85,7 +85,7 @@ public class Server {
         boolean validMove = false;
         int move;
         String msg;
-        char player = 'X';
+        char currentPlayer = 'X';
 
         public GameSession() {
 
@@ -97,33 +97,47 @@ public class Server {
 
             while(!state.isEnded()) {
                 while(!validMove) {
-                    if(player == 'X') {
+                    if(currentPlayer == 'X') {
                         msg = comms.fromP1();
-                        move = comms.parseMsg(msg);
-                        if (state.isValid(move, player)) {
+                        move = parseMsg(msg);
+                        if (state.isValid(move, currentPlayer)) {
                             validMove = true;
                             comms.toP1("VALID_MOVE");
                             comms.toP2("OPPONENT_MOVE " + move);
                         }
                     }
 
-                    else if(player == 'O') {
+                    else if(currentPlayer == 'O') {
                         msg = comms.fromP2();
-                        move = comms.parseMsg(msg);
-                        if(state.isValid(move, player)) {
+                        move = parseMsg(msg);
+                        if(state.isValid(move, currentPlayer)) {
                             validMove = true;
-                            comms.toP1("OPPONENT_MOVE" + move);
+                            comms.toP1("OPPONENT_MOVE " + move);
                             comms.toP2("VALID MOVE");
                         }
                     }
                 }
 
                 state.checkState();
-                player = player == 'X' ? 'O' : 'X';
+                currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
                 validMove = false;
             }
 
-            comms.toAll("END");
+            if(state.isDraw()) {
+                comms.toAll("DRAW");
+            }
+
+            else {
+                if(state.getWinner() == 'X') {
+                    comms.toP1("WIN");
+                    comms.toP2("LOSE");
+                }
+
+                else {
+                    comms.toP1("LOSE");
+                    comms.toP2("WIN");
+                }
+            }
         }
     }
 
@@ -186,16 +200,6 @@ public class Server {
                 return "Error";
             }
         }
-
-        public int parseMsg(String s) {
-            if(s.startsWith("MOVE")) {
-                return Integer.parseInt(s.substring(s.length()-1));
-            }
-
-            else {
-                return -1;
-            }
-        }
     }
     private class GameState {
         private boolean isWon;
@@ -217,6 +221,7 @@ public class Server {
         public boolean isEnded() {
             return (isWon || isDraw);
         }
+        public boolean isDraw() { return isDraw; }
         public void checkState() {
             for(int row = 0; row < 3; row ++) {
                 if(board[row][0] != ' ' && board[row][0] == board[row][1] && board[row][1] == board[row][2]) {
@@ -270,6 +275,15 @@ public class Server {
         }
     }
 
+    private static int parseMsg(String s) {
+        if(s.startsWith("MOVE")) {
+            return Integer.parseInt(s.substring(s.length()-1));
+        }
+
+        else {
+            return -1;
+        }
+    }
 
 
     // Utility functions

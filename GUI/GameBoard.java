@@ -25,6 +25,10 @@ public class GameBoard extends JFrame {
         setVisible(true);
     }
 
+    public void updateBoard(int buttonNumber, String symbol) {
+        button[buttonNumber].setText(symbol);
+    }
+
     private JPanel setupBoard() {
         JPanel panel = new JPanel(new GridLayout(3,3));
 
@@ -42,39 +46,39 @@ public class GameBoard extends JFrame {
     private class ButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if(e.getSource() == button[0]) {
-                client.sendRequest("MOVE 0");
+                client.requestMove(0);
             }
 
             else if(e.getSource() == button[1]) {
-                client.sendRequest("MOVE 1");
+                client.requestMove(1);
             }
 
             else if(e.getSource() == button[2]) {
-                client.sendRequest("MOVE 2");
+                client.requestMove(2);
             }
 
             else if(e.getSource() == button[3]) {
-                client.sendRequest("MOVE 3");
+                client.requestMove(3);
             }
 
             else if(e.getSource() == button[4]) {
-                client.sendRequest("MOVE 4");
+                client.requestMove(4);
             }
 
             else if(e.getSource() == button[5]) {
-                client.sendRequest("MOVE 5");
+                client.requestMove(5);
             }
 
             else if(e.getSource() == button[6]) {
-                client.sendRequest("MOVE 6");
+                client.requestMove(6);
             }
 
             else if(e.getSource() == button[7]) {
-                client.sendRequest("MOVE 7");
+                client.requestMove(7);
             }
 
             else if(e.getSource() == button[8]) {
-                client.sendRequest("MOVE 8");
+                client.requestMove(8);
             }
         }
     }

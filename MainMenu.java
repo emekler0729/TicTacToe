@@ -1,4 +1,4 @@
-package io.github.emekler0729.TicTacToe.GUI;
+package io.github.emekler0729.TicTacToe;
 
 import io.github.emekler0729.TicTacToe.*;
 import javax.swing.*;
@@ -88,15 +88,15 @@ public class MainMenu extends JFrame {
 
         public void actionPerformed(ActionEvent e) {
             if(name == "1P") {
-                client.launchSingleplayer();
+                JOptionPane.showMessageDialog(null,"This mode is not yet implemented.", "Error", JOptionPane.ERROR_MESSAGE);
             }
 
             else if(name == "2P") {
-                client.launchSplitscreen();
+                JOptionPane.showMessageDialog(null,"This mode is not yet implemented.", "Error", JOptionPane.ERROR_MESSAGE);
             }
 
             else if(name == "Online") {
-                client.launchMultiplayer();
+                client.newGame();
             }
         }
     }

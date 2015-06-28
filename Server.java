@@ -5,7 +5,7 @@ import java.net.*;
 import java.io.*;
 import java.util.Date;
 
-public class Server {
+public class Server implements TicTacToeProtocol {
     // Server Member Variables
     private static final int defaultPort = 9090;
     private static ServerSocket listener;
@@ -93,7 +93,7 @@ public class Server {
         public void run() {
             state = new GameState();
 
-            comms.toAll("START");
+            comms.toAll(TTTP_START);
 
             while(!state.isEnded()) {
                 while(!validMove) {
@@ -102,8 +102,11 @@ public class Server {
                         move = parseMsg(msg);
                         if (state.isValid(move, currentPlayer)) {
                             validMove = true;
-                            comms.toP1("VALID_MOVE");
-                            comms.toP2("OPPONENT_MOVE " + move);
+                            comms.toP1(TTTP_VALID_MOVE);
+                            comms.toP2(TTTP_OPPONENT_MOVE + move);
+                        }
+                        else {
+                            comms.toP1(TTTP_INVALID_MOVE);
                         }
                     }
 
@@ -112,8 +115,11 @@ public class Server {
                         move = parseMsg(msg);
                         if(state.isValid(move, currentPlayer)) {
                             validMove = true;
-                            comms.toP1("OPPONENT_MOVE " + move);
-                            comms.toP2("VALID MOVE");
+                            comms.toP1(TTTP_OPPONENT_MOVE + move);
+                            comms.toP2(TTTP_VALID_MOVE);
+                        }
+                        else {
+                            comms.toP2(TTTP_INVALID_MOVE);
                         }
                     }
                 }
@@ -124,18 +130,18 @@ public class Server {
             }
 
             if(state.isDraw()) {
-                comms.toAll("DRAW");
+                comms.toAll(TTTP_DRAW);
             }
 
             else {
                 if(state.getWinner() == 'X') {
-                    comms.toP1("WIN");
-                    comms.toP2("LOSE");
+                    comms.toP1(TTTP_WIN);
+                    comms.toP2(TTTP_LOSE);
                 }
 
                 else {
-                    comms.toP1("LOSE");
-                    comms.toP2("WIN");
+                    comms.toP1(TTTP_LOSE);
+                    comms.toP2(TTTP_WIN);
                 }
             }
         }
@@ -276,7 +282,7 @@ public class Server {
     }
 
     private static int parseMsg(String s) {
-        if(s.startsWith("MOVE")) {
+        if(s.startsWith(TTTP_MOVE)) {
             return Integer.parseInt(s.substring(s.length()-1));
         }
 

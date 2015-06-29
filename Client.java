@@ -12,12 +12,14 @@ public class Client implements TicTacToeProtocol {
     private GameSession game;
     public CommsDriver comms;
 
+    private static Client client;
+
     // Debug flags
     private boolean enableDebug = false;
 
     // Entry Point
     public static void main(String[] args) {
-        Client client = new Client(args);
+        client = new Client(args);
     }
 
     // Constructor instantiates main menu and debug settings
@@ -89,8 +91,17 @@ public class Client implements TicTacToeProtocol {
             }
 
             // Play Again?
-            // Return to main menu
-            safeExit();
+//            int choice = JOptionPane.showOptionDialog(null,"Would you like to play again?","Game Over",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,new Object[]{"Yes","No"},"Yes");
+//            if(choice == 0) {
+//                comms.enable();
+//                comms.sendRequest(TTTP_PLAY_AGAIN);
+//                gameboard = new GameBoard(client);
+//                game = new GameSession();
+//                game.start();
+//            }
+//            else {
+                disconnect();
+//            }
         }
 
         private void parseMsg(String s) {
@@ -135,7 +146,17 @@ public class Client implements TicTacToeProtocol {
                 }
             }
         }
-        private void safeExit() {
+        private void disconnect() {
+            comms.enable();
+            comms.sendRequest(TTTP_EXIT);
+            comms = null;
+
+            try {
+                serverSocket.close();
+            }
+            catch(IOException e) {
+
+            }
             gameboard.dispose();
             mainmenu.setVisible(true);
         }
@@ -146,7 +167,7 @@ public class Client implements TicTacToeProtocol {
         int choice = JOptionPane.showOptionDialog(null,"Select Host or Join","Online Options",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,new Object[]{"Host","Join"},"Host");
         if(choice == 0) {
             try {
-                Server local = new Server(enableDebug);
+                Server local = new Server(enableDebug, 9090);
                 serverSocket = new Socket("localhost", 9090);
             } catch (IOException e) {
 

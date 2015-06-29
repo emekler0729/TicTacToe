@@ -7,42 +7,23 @@ import java.util.Date;
 
 public class Server implements TicTacToeProtocol {
     // Server Member Variables
-    private final int defaultPort = 9090;
     private ServerSocket listener;
     private Socket player1;
     private Socket player2;
     private GameSession game;
     private GameState state;
     private CommDriver comms;
-    private JTextArea jtaConsole;
+    private ServerConsole console;
 
-    // Server State Variables
-    private boolean debug;
-
-    public Server(boolean enableDebug) throws IOException {
-        if(enableDebug) {
-            debug = true;
-            jtaConsole = setupConsole();
-        }
-
-        listener = new ServerSocket(defaultPort);
-
-        debugMsg("Server started at " + new Date() + " on port number " + defaultPort + ".");
-
-        InitializeThread initialize = new InitializeThread();
-        initialize.start();
-    }
     public Server(boolean enableDebug, int port) throws IOException {
-        if(enableDebug) {
-            debug = true;
-            jtaConsole = setupConsole();
-        }
+
+        console = new ServerConsole(enableDebug);
 
         comms = new CommDriver();
         listener = new ServerSocket(port);
-        if(debug) {
-            jtaConsole.append("Server started at " + new Date() + " on port number " + port + ".\n");
-        }
+
+        console.debugMsg("Server started at " + new Date() + " on port number " + port);
+
 
         InitializeThread initialize = new InitializeThread();
         initialize.start();
@@ -57,19 +38,19 @@ public class Server implements TicTacToeProtocol {
             try {
                 comms = new CommDriver();
 
-                debugMsg("Waiting for connection from Player 1...");
+                console.debugMsg("Waiting for connection from Player 1...");
                 player1 = listener.accept();
-                debugMsg("Connection made from Player 1 at " + player1.getInetAddress() + ":" + player1.getPort());
-                comms.setP1IO(new BufferedReader(new InputStreamReader(player1.getInputStream())), new PrintWriter(player1.getOutputStream(),true));
-                debugMsg("Player 1 I/O streams established.");
-                comms.toP1("SYMBOL X");
+                console.debugMsg("Connection made from Player 1 at " + player1.getInetAddress() + ":" + player1.getPort());
+                comms.setP1IO(new BufferedReader(new InputStreamReader(player1.getInputStream())), new PrintWriter(player1.getOutputStream(), true));
+                console.debugMsg("Player 1 I/O streams established.");
+                comms.toP1(TTTP_SYMBOL + "X");
 
-                debugMsg("Waiting for connection from Player 2...");
+                console.debugMsg("Waiting for connection from Player 2...");
                 player2 = listener.accept();
-                debugMsg("Connection made from Player 2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".");
+                console.debugMsg("Connection made from Player 2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".");
                 comms.setP2IO(new BufferedReader(new InputStreamReader(player2.getInputStream())), new PrintWriter(player2.getOutputStream(),true));
-                debugMsg("Player 2 I/O streams established.");
-                comms.toP2("SYMBOL O");
+                console.debugMsg("Player 2 I/O streams established.");
+                comms.toP2(TTTP_SYMBOL + "O");
 
                 game = new GameSession();
                 game.start();
@@ -77,7 +58,7 @@ public class Server implements TicTacToeProtocol {
 
             }
             catch(IOException e) {
-                jtaConsole.append(e.toString() + "\n");
+
             }
         }
     }
@@ -144,6 +125,22 @@ public class Server implements TicTacToeProtocol {
                     comms.toP2(TTTP_WIN);
                 }
             }
+
+//            msg = comms.fromP1();
+//            if(msg.equals(TTTP_PLAY_AGAIN)) {
+//                msg = comms.fromP2();
+//                if(msg.equals((TTTP_PLAY_AGAIN))) {
+//                    game = new GameSession();
+//                    game.start();
+//                }
+//                else {
+                    disconnect();
+//                }
+//            }
+//            else {
+//                disconnect();
+//            }
+            // Else Exit
         }
     }
 
@@ -171,22 +168,22 @@ public class Server implements TicTacToeProtocol {
         public void toAll(String s) {
             p1Out.println(s);
             p2Out.println(s);
-            debugMsg("Message sent to all: " + s);
+            console.debugMsg("Message sent to all: " + s);
         }
         public void toP1(String s) {
             p1Out.println(s);
-            debugMsg("Message sent to Player 1: " + s);
+            console.debugMsg("Message sent to Player 1: " + s);
         }
         public void toP2(String s) {
             p2Out.println(s);
-            debugMsg("Message sent to Player 2: " + s);
+            console.debugMsg("Message sent to Player 2: " + s);
         }
 
         public String fromP1() {
             String s;
             try {
                 s = new String(p1In.readLine());
-                debugMsg("Message received from Player 1: " + s);
+                console.debugMsg("Message received from Player 1: " + s);
                 return s;
             }
 
@@ -198,7 +195,7 @@ public class Server implements TicTacToeProtocol {
             String s;
             try {
                 s = new String(p2In.readLine());
-                debugMsg("Message received from Player 2: " + s);
+                console.debugMsg("Message received from Player 2: " + s);
                 return s;
             }
 
@@ -286,33 +283,23 @@ public class Server implements TicTacToeProtocol {
             return -1;
         }
     }
+    private void disconnect() {
+        comms = null;
+        console.debugMsg("All I/O streams shut down.");
 
-
-    // Utility functions
-    private JTextArea setupConsole() {
-        JFrame frame = new JFrame("Tic Tac Toe Server Console");
-
-        JTextArea text = new JTextArea();
-
-        text.setLineWrap(true);
-        text.setWrapStyleWord(true);
-        text.setEditable(false);
-
-        JScrollPane scrollPane = new JScrollPane(text);
-
-        frame.add(scrollPane);
-
-        frame.setSize(600,300);
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-        frame.setVisible(true);
-
-        return text;
-    }
-    private void debugMsg(String s) {
-        if(debug) {
-            jtaConsole.append(s + "\n");
+        try {
+            player1.close();
+            console.debugMsg("Player 1 socket closed.");
+            player2.close();
+            console.debugMsg("Player 2 socket closed.");
+            listener.close();
+            console.debugMsg("Server socket closed.");
         }
+
+        catch(IOException e) {
+
+        }
+
+        console.dispose();
     }
 }

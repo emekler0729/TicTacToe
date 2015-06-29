@@ -13,5 +13,6 @@ public interface TicTacToeProtocol {
 
     // Client Commands
     public static final String TTTP_MOVE = "MOVE ";
+    public static final String TTTP_PLAY_AGAIN = "PLAY_AGAIN";
     public static final String TTTP_EXIT = "EXIT";
 }

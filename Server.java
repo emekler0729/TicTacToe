@@ -7,17 +7,17 @@ import java.util.Date;
 
 public class Server implements TicTacToeProtocol {
     // Server Member Variables
-    private static final int defaultPort = 9090;
-    private static ServerSocket listener;
-    private static Socket player1;
-    private static Socket player2;
-    private static GameSession game;
-    private static GameState state;
-    private static CommDriver comms;
-    private static JTextArea jtaConsole;
+    private final int defaultPort = 9090;
+    private ServerSocket listener;
+    private Socket player1;
+    private Socket player2;
+    private GameSession game;
+    private GameState state;
+    private CommDriver comms;
+    private JTextArea jtaConsole;
 
     // Server State Variables
-    private static boolean debug;
+    private boolean debug;
 
     public Server(boolean enableDebug) throws IOException {
         if(enableDebug) {
@@ -273,10 +273,6 @@ public class Server implements TicTacToeProtocol {
                 turnsTaken++;
             }
 
-            else {
-                debugMsg("Move was invalid.");
-            }
-
             return valid;
         }
     }
@@ -293,7 +289,7 @@ public class Server implements TicTacToeProtocol {
 
 
     // Utility functions
-    private static JTextArea setupConsole() {
+    private JTextArea setupConsole() {
         JFrame frame = new JFrame("Tic Tac Toe Server Console");
 
         JTextArea text = new JTextArea();
@@ -314,7 +310,7 @@ public class Server implements TicTacToeProtocol {
 
         return text;
     }
-    private static void debugMsg(String s) {
+    private void debugMsg(String s) {
         if(debug) {
             jtaConsole.append(s + "\n");
         }

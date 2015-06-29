@@ -1,6 +1,5 @@
 package io.github.emekler0729.TicTacToe;
 
-import io.github.emekler0729.TicTacToe.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -96,7 +95,7 @@ public class MainMenu extends JFrame {
             }
 
             else if(name == "Online") {
-                client.newGame();
+                client.initializeGame();
             }
         }
     }

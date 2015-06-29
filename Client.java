@@ -6,20 +6,29 @@ import java.net.Socket;
 
 public class Client implements TicTacToeProtocol {
     // Client Member Variables
-    private static MainMenu mainmenu;
-    private static GameBoard gameboard;
-    private static Socket server;
-    private static GameSession game;
+    private MainMenu mainmenu;
+    private GameBoard gameboard;
+    private Socket serverSocket;
+    private GameSession game;
     public CommsDriver comms;
+
+    // Debug flags
+    private boolean enableDebug = false;
 
     // Entry Point
     public static void main(String[] args) {
-        Client client = new Client();
+        Client client = new Client(args);
     }
 
-    // Instantiates Main Menu
-    private Client() {
+    // Constructor instantiates main menu and debug settings
+    private Client(String[] args) {
         mainmenu = new MainMenu(this);
+
+        for(int i = 0; i < args.length; i++) {
+            if(args[i].equals("debug")) {
+                enableDebug = true;
+            }
+        }
     }
 
     public class CommsDriver {
@@ -30,8 +39,8 @@ public class Client implements TicTacToeProtocol {
 
         CommsDriver() {
             try {
-                toServer = new PrintWriter(server.getOutputStream(), true);
-                fromServer = new BufferedReader(new InputStreamReader(server.getInputStream()));
+                toServer = new PrintWriter(serverSocket.getOutputStream(), true);
+                fromServer = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
             }
 
             catch(IOException e) {
@@ -42,7 +51,7 @@ public class Client implements TicTacToeProtocol {
         public void sendRequest(String s) {
             if(serverAccess) {
                 toServer.println(s);
-                serverAccess = false;
+                disable();
             }
         }
         public String readResponse() {
@@ -60,7 +69,6 @@ public class Client implements TicTacToeProtocol {
         public void enable() {
             serverAccess = true;
         }
-
         public void disable() {
             serverAccess = false;
         }
@@ -79,10 +87,14 @@ public class Client implements TicTacToeProtocol {
                 msg = comms.readResponse();
                 parseMsg(msg);
             }
+
+            // Play Again?
+            // Return to main menu
+            safeExit();
         }
 
         private void parseMsg(String s) {
-            if(s.equals(TTTP_START)) {
+            if(s.equals(TTTP_START) && firstPlayer) {
                 comms.enable();
                 gameboard.updateBoard(s);
             }
@@ -111,20 +123,45 @@ public class Client implements TicTacToeProtocol {
 
             else if(s.equals(TTTP_WIN) || s.equals(TTTP_LOSE) || s.equals(TTTP_DRAW)) {
                 gameOver = true;
+
+                if(msg.equals(TTTP_DRAW)) {
+                    JOptionPane.showMessageDialog(null,"The game was a draw","Game Over!",JOptionPane.PLAIN_MESSAGE);
+                }
+                else if(msg.equals(TTTP_WIN)) {
+                    JOptionPane.showMessageDialog(null,"You win the game!","Game Over!",JOptionPane.PLAIN_MESSAGE);
+                }
+                else if(msg.equals(TTTP_LOSE)) {
+                    JOptionPane.showMessageDialog(null,"You lose the game.","Game Over!", JOptionPane.PLAIN_MESSAGE);
+                }
+            }
+        }
+        private void safeExit() {
+            gameboard.dispose();
+            mainmenu.setVisible(true);
+        }
+    }
+
+    public void initializeGame() {
+        mainmenu.setVisible(false);
+        int choice = JOptionPane.showOptionDialog(null,"Select Host or Join","Online Options",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,new Object[]{"Host","Join"},"Host");
+        if(choice == 0) {
+            try {
+                Server local = new Server(enableDebug);
+                serverSocket = new Socket("localhost", 9090);
+            } catch (IOException e) {
+
             }
         }
 
-    }
+        else {
+            String socketAddress = JOptionPane.showInputDialog(null, "Enter socket address: (xxx.xxx.xxx.xxx:nnnnn)","Enter Host Address",JOptionPane.QUESTION_MESSAGE);
+            String address[] = socketAddress.split(":");
+            try {
+                serverSocket = new Socket(address[0],Integer.parseInt(address[1]));
+            }
+            catch (IOException e) {
 
-    public void newGame() {
-        mainmenu.setVisible(false);
-        // Only if Hosting
-        try {
-            Server local = new Server(true);
-            server = new Socket("localhost", 9090);
-        }
-        catch(IOException e) {
-
+            }
         }
 
         comms = new CommsDriver();

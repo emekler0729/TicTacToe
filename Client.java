@@ -12,14 +12,12 @@ public class Client implements TicTacToeProtocol {
     private GameSession game;
     public CommsDriver comms;
 
-    private static Client client;
-
     // Debug flags
     private boolean enableDebug = false;
 
     // Entry Point
     public static void main(String[] args) {
-        client = new Client(args);
+        Client client = new Client(args);
     }
 
     // Constructor instantiates main menu and debug settings
@@ -178,10 +176,15 @@ public class Client implements TicTacToeProtocol {
             String socketAddress = JOptionPane.showInputDialog(null, "Enter socket address: (xxx.xxx.xxx.xxx:nnnnn)","Enter Host Address",JOptionPane.QUESTION_MESSAGE);
             String address[] = socketAddress.split(":");
             try {
+                if (address.length != 2) {
+                    throw(new IOException());
+                }
                 serverSocket = new Socket(address[0],Integer.parseInt(address[1]));
             }
             catch (IOException e) {
-
+                JOptionPane.showMessageDialog(null,"Unable to connect to host", "Error", JOptionPane.ERROR_MESSAGE);
+                mainmenu.setVisible(true);
+                return;
             }
         }
 

@@ -2,13 +2,13 @@ package io.github.emekler0729.TicTacToe;
 
 import javax.swing.*;
 
-public class ServerConsole extends JFrame {
+public class DebugConsole extends JFrame {
     JTextArea text;
     JScrollPane scrollPane;
     JScrollBar bar;
 
-    public ServerConsole(boolean enabled) {
-        super("Tic Tac Toe Server Console");
+    public DebugConsole(boolean enabled, String windowTitle) {
+        super(windowTitle);
 
         text = new JTextArea();
         scrollPane = new JScrollPane(text);

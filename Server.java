@@ -1,6 +1,5 @@
 package io.github.emekler0729.TicTacToe;
 
-import javax.swing.*;
 import java.net.*;
 import java.io.*;
 import java.util.Date;
@@ -13,11 +12,11 @@ public class Server implements TicTacToeProtocol {
     private GameSession game;
     private GameState state;
     private CommDriver comms;
-    private ServerConsole console;
+    private DebugConsole console;
 
     public Server(boolean enableDebug, int port) throws IOException {
 
-        console = new ServerConsole(enableDebug);
+        console = new DebugConsole(enableDebug, "Tic Tac Toe Server Console");
 
         comms = new CommDriver();
         listener = new ServerSocket(port);

@@ -43,6 +43,7 @@ public class Server implements TicTacToeProtocol {
                 comms.setP1IO(new BufferedReader(new InputStreamReader(player1.getInputStream())), new PrintWriter(player1.getOutputStream(), true));
                 console.println("Player 1 I/O streams established.");
                 comms.toP1(TTTP_SYMBOL + "X");
+                comms.toP1(TTTP_MSG + "You are Player 1... waiting for Player 2");
 
                 console.println("Waiting for connection from Player 2...");
                 player2 = listener.accept();
@@ -50,6 +51,9 @@ public class Server implements TicTacToeProtocol {
                 comms.setP2IO(new BufferedReader(new InputStreamReader(player2.getInputStream())), new PrintWriter(player2.getOutputStream(),true));
                 console.println("Player 2 I/O streams established.");
                 comms.toP2(TTTP_SYMBOL + "O");
+                comms.toP1(TTTP_MSG + "Player 2 has joined... starting the game");
+                comms.toP2(TTTP_MSG + "You are Player 2... starting the game");
+
 
                 game = new GameSession();
                 game.start();
@@ -74,6 +78,7 @@ public class Server implements TicTacToeProtocol {
             state = new GameState();
 
             comms.toAll(TTTP_START);
+            comms.toAll(TTTP_MSG + "Player 1's turn.");
 
             while(!state.isEnded()) {
                 while(!validMove) {
@@ -87,6 +92,7 @@ public class Server implements TicTacToeProtocol {
                         }
                         else {
                             comms.toP1(TTTP_INVALID_MOVE);
+                            comms.toP1(TTTP_MSG + "Invalid move. Try again.");
                         }
                     }
 
@@ -100,14 +106,25 @@ public class Server implements TicTacToeProtocol {
                         }
                         else {
                             comms.toP2(TTTP_INVALID_MOVE);
+                            comms.toP2(TTTP_MSG + "Invalid move. Try again.");
                         }
                     }
                 }
 
                 state.checkState();
                 currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
+
+                if(currentPlayer == 'O') {
+                    comms.toAll(TTTP_MSG + "Player 2's turn.");
+                }
+                else {
+                    comms.toAll(TTTP_MSG + "Player 1's turn.");
+                }
+
                 validMove = false;
             }
+
+            comms.toAll(TTTP_MSG + "Game Over!");
 
             if(state.isDraw()) {
                 comms.toAll(TTTP_DRAW);

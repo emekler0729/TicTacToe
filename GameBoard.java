@@ -5,31 +5,33 @@ import java.awt.*;
 import java.awt.event.*;
 
 
-public class GameBoard extends JFrame implements TicTacToeProtocol {
-    private static Client client;
-    private static JButton button[] = new JButton[9];
+class GameBoard extends JFrame implements TicTacToeProtocol {
+    private Client client;
+    private JButton button[] = new JButton[9];
+    private JTextField text = new JTextField(25);
 
-    private static String playerSymbol;
-    private static String opponentSymbol;
-    private static int lastMove;
-    private static boolean lock = true;
+    private String playerSymbol;
+    private String opponentSymbol;
+    private int lastMove;
+    private boolean lock = true;
 
     public GameBoard(Client client) {
         super("Tic Tac Toe");
 
         this.client = client;
 
-        setSize(300,300);
+        setSize(300,320);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        add(setupBoard());
+        add(setupBoard(),BorderLayout.CENTER);
+        add(setupTextField(),BorderLayout.SOUTH);
 
         setVisible(true);
     }
 
-    public void updateBoard(String s) {
+    void updateBoard(String s) {
         if(s.equals(TTTP_START)) {
             lock = false;
         }
@@ -49,6 +51,10 @@ public class GameBoard extends JFrame implements TicTacToeProtocol {
             lock = false;
         }
     }
+    void updateText(String s) {
+        s = s.substring(4);
+        text.setText(s);
+    }
 
     private JPanel setupBoard() {
         JPanel panel = new JPanel(new GridLayout(3,3));
@@ -63,10 +69,20 @@ public class GameBoard extends JFrame implements TicTacToeProtocol {
 
         return panel;
     }
-    public void setPlayerSymbol(String s) {
+    private JPanel setupTextField() {
+        JPanel panel = new JPanel();
+
+        text.setEditable(false);
+
+        panel.add(text);
+
+        return panel;
+    }
+
+    void setPlayerSymbol(String s) {
         playerSymbol = s;
     }
-    public void setOpponentSymbol(String s) {
+    void setOpponentSymbol(String s) {
         opponentSymbol = s;
     }
 

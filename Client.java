@@ -34,11 +34,11 @@ public class Client implements TicTacToeProtocol {
     }
 
     private class GameSession extends Thread {
-        boolean gameOver = false;
-        boolean firstPlayer = false;
-        String msg;
+        private boolean gameOver = false;
+        private boolean firstPlayer = false;
+        private String msg;
 
-        public GameSession() {
+        private GameSession() {
 
         }
 
@@ -67,7 +67,10 @@ public class Client implements TicTacToeProtocol {
         }
 
         private void parseMsg(String s) {
-            if(s.equals(TTTP_START) && firstPlayer) {
+            if(s.startsWith(TTTP_MSG)) {
+                gameboard.updateText(s);
+            }
+            else if(s.equals(TTTP_START) && firstPlayer) {
                 comms.setInhibited(false);
                 gameboard.updateBoard(s);
             }
@@ -124,13 +127,14 @@ public class Client implements TicTacToeProtocol {
         }
     }
 
-    public void initializeGame() {
+    void initializeGame() {
         mainmenu.setVisible(false);
         int choice = JOptionPane.showOptionDialog(null,"Select Host or Join","Online Options",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,new Object[]{"Host","Join"},"Host");
         if(choice == 0) {
             try {
                 Server local = new Server(enableDebug, 9090);
                 serverSocket = new Socket("localhost", 9090);
+                comms = new SocketIODriver(serverSocket,true);
             } catch (IOException e) {
 
             }

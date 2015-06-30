@@ -2,7 +2,9 @@ package io.github.emekler0729.TicTacToe;
 
 import javax.swing.*;
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 public class Client implements TicTacToeProtocol {
     // Client Member Variables
@@ -48,27 +50,22 @@ public class Client implements TicTacToeProtocol {
                 parseMsg(msg);
             }
 
-            // Play Again?
-            /*
             int choice = JOptionPane.showOptionDialog(null,"Would you like to play again?","Game Over",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,new Object[]{"Yes","No"},"Yes");
             if(choice == 0) {
-                comms.setInhibited(false);
-                comms.println(TTTP_PLAY_AGAIN);
-                gameboard.dispose();
-                gameboard = new GameBoard(instance);
-                game = new GameSession();
-
-                game.start();
+                playAgain();
             }
-            */
-//            else {
+
+            else {
                 disconnect();
-//            }
+            }
         }
 
         private void parseMsg(String s) {
             if(s.startsWith(TTTP_MSG)) {
                 gameboard.updateText(s);
+            }
+            else if(s.equals(TTTP_EXIT)) {
+                disconnect();
             }
             else if(s.equals(TTTP_START) && firstPlayer) {
                 comms.setInhibited(false);
@@ -142,12 +139,15 @@ public class Client implements TicTacToeProtocol {
 
         else {
             String socketAddress = JOptionPane.showInputDialog(null, "Enter socket address: (xxx.xxx.xxx.xxx:nnnnn)","Enter Host Address",JOptionPane.QUESTION_MESSAGE);
+            socketAddress = socketAddress.trim();
             String address[] = socketAddress.split(":");
             try {
                 if (address.length != 2) {
                     throw(new IOException());
                 }
-                serverSocket = new Socket(address[0],Integer.parseInt(address[1]));
+                SocketAddress adr = new InetSocketAddress(address[0],Integer.parseInt(address[1]));
+                serverSocket = new Socket();
+                serverSocket.connect(adr,3000);
                 comms = new SocketIODriver(serverSocket,true);
             }
             catch (IOException e) {
@@ -159,6 +159,15 @@ public class Client implements TicTacToeProtocol {
 
         gameboard = new GameBoard(this);
         game = new GameSession();
+        game.start();
+    }
+    private void playAgain() {
+        comms.setInhibited(false);
+        comms.println((TTTP_PLAY_AGAIN));
+        gameboard.dispose();
+        gameboard = new GameBoard(this);
+        game = new GameSession();
+
         game.start();
     }
 }

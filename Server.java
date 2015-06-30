@@ -42,15 +42,13 @@ public class Server implements TicTacToeProtocol {
                 console.println("Connection made from Player 1 at " + player1.getInetAddress() + ":" + player1.getPort());
                 comms.setP1IO(new BufferedReader(new InputStreamReader(player1.getInputStream())), new PrintWriter(player1.getOutputStream(), true));
                 console.println("Player 1 I/O streams established.");
-                comms.toP1(TTTP_SYMBOL + "X");
                 comms.toP1(TTTP_MSG + "You are Player 1... waiting for Player 2");
 
                 console.println("Waiting for connection from Player 2...");
                 player2 = listener.accept();
                 console.println("Connection made from Player 2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".");
-                comms.setP2IO(new BufferedReader(new InputStreamReader(player2.getInputStream())), new PrintWriter(player2.getOutputStream(),true));
+                comms.setP2IO(new BufferedReader(new InputStreamReader(player2.getInputStream())), new PrintWriter(player2.getOutputStream(), true));
                 console.println("Player 2 I/O streams established.");
-                comms.toP2(TTTP_SYMBOL + "O");
                 comms.toP1(TTTP_MSG + "Player 2 has joined... starting the game");
                 comms.toP2(TTTP_MSG + "You are Player 2... starting the game");
 
@@ -76,6 +74,9 @@ public class Server implements TicTacToeProtocol {
         }
         public void run() {
             state = new GameState();
+
+            comms.toP1(TTTP_SYMBOL + "X");
+            comms.toP2(TTTP_SYMBOL + "O");
 
             comms.toAll(TTTP_START);
             comms.toAll(TTTP_MSG + "Player 1's turn.");
@@ -142,21 +143,28 @@ public class Server implements TicTacToeProtocol {
                 }
             }
 
-//            msg = comms.fromP1();
-//            if(msg.equals(TTTP_PLAY_AGAIN)) {
-//                msg = comms.fromP2();
-//                if(msg.equals((TTTP_PLAY_AGAIN))) {
-//                    game = new GameSession();
-//                    game.start();
-//                }
-//                else {
-                    disconnect();
-//                }
-//            }
-//            else {
-//                disconnect();
-//            }
-            // Else Exit
+            comms.toAll(TTTP_MSG + "Waiting for opponent...");
+
+            String P1Again = comms.fromP1();
+            String P2Again = comms.fromP2();
+
+            if(P1Again.equals(TTTP_EXIT) || P2Again.equals(TTTP_EXIT)) {
+                disconnect();
+            }
+
+            else if(P1Again.equals(TTTP_PLAY_AGAIN) && P2Again.equals(TTTP_PLAY_AGAIN)) {
+                playAgain();
+            }
+        }
+
+        private int parseMsg(String s) {
+            if(s.startsWith(TTTP_MOVE)) {
+                return Integer.parseInt(s.substring(s.length()-1));
+            }
+
+            else {
+                return -1;
+            }
         }
     }
 
@@ -290,16 +298,9 @@ public class Server implements TicTacToeProtocol {
         }
     }
 
-    private static int parseMsg(String s) {
-        if(s.startsWith(TTTP_MOVE)) {
-            return Integer.parseInt(s.substring(s.length()-1));
-        }
 
-        else {
-            return -1;
-        }
-    }
     private void disconnect() {
+        comms.toAll(TTTP_EXIT);
         comms = null;
         console.println("All I/O streams shut down.");
 
@@ -317,5 +318,10 @@ public class Server implements TicTacToeProtocol {
         }
 
         console.dispose();
+    }
+    private void playAgain() {
+        game = new GameSession();
+
+        game.start();
     }
 }

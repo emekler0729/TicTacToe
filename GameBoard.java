@@ -113,7 +113,7 @@ public class GameBoard extends JFrame implements TicTacToeProtocol {
             if(!lock) {
                 lastMove = i;
                 lock = true;
-                client.comms.sendRequest(TTTP_MOVE + i);
+                client.comms.println(TTTP_MOVE + i);
             }
         }
     }

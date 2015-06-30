@@ -21,7 +21,7 @@ public class Server implements TicTacToeProtocol {
         comms = new CommDriver();
         listener = new ServerSocket(port);
 
-        console.debugMsg("Server started at " + new Date() + " on port number " + port);
+        console.println("Server started at " + new Date() + " on port number " + port);
 
 
         InitializeThread initialize = new InitializeThread();
@@ -37,18 +37,18 @@ public class Server implements TicTacToeProtocol {
             try {
                 comms = new CommDriver();
 
-                console.debugMsg("Waiting for connection from Player 1...");
+                console.println("Waiting for connection from Player 1...");
                 player1 = listener.accept();
-                console.debugMsg("Connection made from Player 1 at " + player1.getInetAddress() + ":" + player1.getPort());
+                console.println("Connection made from Player 1 at " + player1.getInetAddress() + ":" + player1.getPort());
                 comms.setP1IO(new BufferedReader(new InputStreamReader(player1.getInputStream())), new PrintWriter(player1.getOutputStream(), true));
-                console.debugMsg("Player 1 I/O streams established.");
+                console.println("Player 1 I/O streams established.");
                 comms.toP1(TTTP_SYMBOL + "X");
 
-                console.debugMsg("Waiting for connection from Player 2...");
+                console.println("Waiting for connection from Player 2...");
                 player2 = listener.accept();
-                console.debugMsg("Connection made from Player 2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".");
+                console.println("Connection made from Player 2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".");
                 comms.setP2IO(new BufferedReader(new InputStreamReader(player2.getInputStream())), new PrintWriter(player2.getOutputStream(),true));
-                console.debugMsg("Player 2 I/O streams established.");
+                console.println("Player 2 I/O streams established.");
                 comms.toP2(TTTP_SYMBOL + "O");
 
                 game = new GameSession();
@@ -167,22 +167,22 @@ public class Server implements TicTacToeProtocol {
         public void toAll(String s) {
             p1Out.println(s);
             p2Out.println(s);
-            console.debugMsg("Message sent to all: " + s);
+            console.println("Message sent to all: " + s);
         }
         public void toP1(String s) {
             p1Out.println(s);
-            console.debugMsg("Message sent to Player 1: " + s);
+            console.println("Message sent to Player 1: " + s);
         }
         public void toP2(String s) {
             p2Out.println(s);
-            console.debugMsg("Message sent to Player 2: " + s);
+            console.println("Message sent to Player 2: " + s);
         }
 
         public String fromP1() {
             String s;
             try {
                 s = new String(p1In.readLine());
-                console.debugMsg("Message received from Player 1: " + s);
+                console.println("Message received from Player 1: " + s);
                 return s;
             }
 
@@ -194,7 +194,7 @@ public class Server implements TicTacToeProtocol {
             String s;
             try {
                 s = new String(p2In.readLine());
-                console.debugMsg("Message received from Player 2: " + s);
+                console.println("Message received from Player 2: " + s);
                 return s;
             }
 
@@ -284,15 +284,15 @@ public class Server implements TicTacToeProtocol {
     }
     private void disconnect() {
         comms = null;
-        console.debugMsg("All I/O streams shut down.");
+        console.println("All I/O streams shut down.");
 
         try {
             player1.close();
-            console.debugMsg("Player 1 socket closed.");
+            console.println("Player 1 socket closed.");
             player2.close();
-            console.debugMsg("Player 2 socket closed.");
+            console.println("Player 2 socket closed.");
             listener.close();
-            console.debugMsg("Server socket closed.");
+            console.println("Server socket closed.");
         }
 
         catch(IOException e) {

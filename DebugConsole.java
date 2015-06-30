@@ -27,7 +27,7 @@ public class DebugConsole extends JFrame {
         setVisible(enabled);
     }
 
-    public void debugMsg(String s) {
+    public void println(String s) {
         text.append(s + "\n");
         bar.setValue(bar.getMaximum());
     }

@@ -6,11 +6,12 @@ import java.net.Socket;
 
 public class Client implements TicTacToeProtocol {
     // Client Member Variables
+    private Client instance;
     private MainMenu mainmenu;
     private GameBoard gameboard;
     private Socket serverSocket;
     private GameSession game;
-    public CommsDriver comms;
+    SocketIODriver comms;
 
     // Debug flags
     private boolean enableDebug = false;
@@ -22,6 +23,7 @@ public class Client implements TicTacToeProtocol {
 
     // Constructor instantiates main menu and debug settings
     private Client(String[] args) {
+        instance = this;
         mainmenu = new MainMenu(this);
 
         for(int i = 0; i < args.length; i++) {
@@ -31,48 +33,6 @@ public class Client implements TicTacToeProtocol {
         }
     }
 
-    public class CommsDriver {
-        private PrintWriter toServer;
-        private BufferedReader fromServer;
-
-        private boolean serverAccess = false;
-
-        CommsDriver() {
-            try {
-                toServer = new PrintWriter(serverSocket.getOutputStream(), true);
-                fromServer = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-            }
-
-            catch(IOException e) {
-
-            }
-        }
-
-        public void sendRequest(String s) {
-            if(serverAccess) {
-                toServer.println(s);
-                disable();
-            }
-        }
-        public String readResponse() {
-            String s;
-            try {
-                s = fromServer.readLine();
-                return s;
-            }
-
-            catch(IOException e) {
-                return "Error";
-            }
-        }
-
-        public void enable() {
-            serverAccess = true;
-        }
-        public void disable() {
-            serverAccess = false;
-        }
-    }
     private class GameSession extends Thread {
         boolean gameOver = false;
         boolean firstPlayer = false;
@@ -84,19 +44,23 @@ public class Client implements TicTacToeProtocol {
 
         public void run() {
             while(!gameOver) {
-                msg = comms.readResponse();
+                msg = comms.readLine();
                 parseMsg(msg);
             }
 
             // Play Again?
-//            int choice = JOptionPane.showOptionDialog(null,"Would you like to play again?","Game Over",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,new Object[]{"Yes","No"},"Yes");
-//            if(choice == 0) {
-//                comms.enable();
-//                comms.sendRequest(TTTP_PLAY_AGAIN);
-//                gameboard = new GameBoard(client);
-//                game = new GameSession();
-//                game.start();
-//            }
+            /*
+            int choice = JOptionPane.showOptionDialog(null,"Would you like to play again?","Game Over",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,new Object[]{"Yes","No"},"Yes");
+            if(choice == 0) {
+                comms.setInhibited(false);
+                comms.println(TTTP_PLAY_AGAIN);
+                gameboard.dispose();
+                gameboard = new GameBoard(instance);
+                game = new GameSession();
+
+                game.start();
+            }
+            */
 //            else {
                 disconnect();
 //            }
@@ -104,7 +68,7 @@ public class Client implements TicTacToeProtocol {
 
         private void parseMsg(String s) {
             if(s.equals(TTTP_START) && firstPlayer) {
-                comms.enable();
+                comms.setInhibited(false);
                 gameboard.updateBoard(s);
             }
             else if(s.startsWith(TTTP_SYMBOL)) {
@@ -122,12 +86,12 @@ public class Client implements TicTacToeProtocol {
 
             else if(s.equals(TTTP_INVALID_MOVE)) {
                 gameboard.updateBoard(s);
-                comms.enable();
+                comms.setInhibited(false);
             }
 
             else if(s.startsWith(TTTP_OPPONENT_MOVE)) {
                 gameboard.updateBoard(s);
-                comms.enable();
+                comms.setInhibited(false);
             }
 
             else if(s.equals(TTTP_WIN) || s.equals(TTTP_LOSE) || s.equals(TTTP_DRAW)) {
@@ -145,8 +109,8 @@ public class Client implements TicTacToeProtocol {
             }
         }
         private void disconnect() {
-            comms.enable();
-            comms.sendRequest(TTTP_EXIT);
+            comms.setInhibited(false);
+            comms.println(TTTP_EXIT);
             comms = null;
 
             try {
@@ -180,6 +144,7 @@ public class Client implements TicTacToeProtocol {
                     throw(new IOException());
                 }
                 serverSocket = new Socket(address[0],Integer.parseInt(address[1]));
+                comms = new SocketIODriver(serverSocket,true);
             }
             catch (IOException e) {
                 JOptionPane.showMessageDialog(null,"Unable to connect to host", "Error", JOptionPane.ERROR_MESSAGE);
@@ -188,7 +153,6 @@ public class Client implements TicTacToeProtocol {
             }
         }
 
-        comms = new CommsDriver();
         gameboard = new GameBoard(this);
         game = new GameSession();
         game.start();

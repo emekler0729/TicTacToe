@@ -4,11 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MainMenu extends JFrame {
+public class MainMenuGUI extends JFrame {
     // Communication link to client program
-    private static Client client;
+    private static GUIClient client;
 
-    public MainMenu(Client client) {
+    public MainMenuGUI(GUIClient client) {
         super("Tic Tac Toe");
 
         this.client = client;
@@ -50,7 +50,7 @@ public class MainMenu extends JFrame {
         jmb.add(file);
         jmb.add(help);
 
-        // Return configured Menu Bar to MainMenu constructor.
+        // Return configured Menu Bar to MainMenuGUI constructor.
         return jmb;
     }
     private static JPanel setupTitle() {

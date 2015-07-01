@@ -4,7 +4,7 @@ import java.net.*;
 import java.io.*;
 import java.util.Date;
 
-public class Server implements TicTacToeProtocol {
+class Server implements TicTacToeProtocol {
     // Server Member Variables
     private ServerSocket listener;
     private Socket player1;

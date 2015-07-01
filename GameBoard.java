@@ -6,7 +6,7 @@ import java.awt.event.*;
 
 
 class GameBoard extends JFrame implements TicTacToeProtocol {
-    private Client client;
+    private GUIClient client;
     private JButton button[] = new JButton[9];
     private JTextField text = new JTextField(25);
 
@@ -15,7 +15,7 @@ class GameBoard extends JFrame implements TicTacToeProtocol {
     private int lastMove;
     private boolean lock = true;
 
-    public GameBoard(Client client) {
+    public GameBoard(GUIClient client) {
         super("Tic Tac Toe");
 
         this.client = client;
@@ -129,7 +129,7 @@ class GameBoard extends JFrame implements TicTacToeProtocol {
             if(!lock) {
                 lastMove = i;
                 lock = true;
-                client.comms.println(TTTP_MOVE + i);
+                client.iostream.println(TTTP_MOVE + i);
             }
         }
     }

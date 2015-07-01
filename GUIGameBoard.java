@@ -5,55 +5,32 @@ import java.awt.*;
 import java.awt.event.*;
 
 
-class GameBoard extends JFrame implements TicTacToeProtocol {
-    private GUIClient client;
+class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
+    private JFrame frame;
     private JButton button[] = new JButton[9];
     private JTextField text = new JTextField(25);
 
-    private String playerSymbol;
-    private String opponentSymbol;
-    private int lastMove;
-    private boolean lock = true;
+    GUIGameBoard(GUIClient client) {
+        super(client);
+        frame = new JFrame("Tic Tac Toe");
 
-    public GameBoard(GUIClient client) {
-        super("Tic Tac Toe");
+        frame.setSize(300, 320);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
 
-        this.client = client;
+        frame.add(setupBoard(),BorderLayout.CENTER);
+        frame.add(setupTextField(),BorderLayout.SOUTH);
 
-        setSize(300,320);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
-
-        add(setupBoard(),BorderLayout.CENTER);
-        add(setupTextField(),BorderLayout.SOUTH);
-
-        setVisible(true);
+        frame.setVisible(true);
     }
 
-    void updateBoard(String s) {
-        if(s.equals(TTTP_START)) {
-            lock = false;
-        }
-
-        if(s.equals(TTTP_VALID_MOVE)) {
-            button[lastMove].setText(playerSymbol);
-        }
-
-        else if(s.startsWith(TTTP_OPPONENT_MOVE)) {
-            int i = Integer.parseInt(s.substring(s.length() - 1));
-            button[i].setText(opponentSymbol);
-            lock = false;
-        }
-
-        else if(s.equals(TTTP_INVALID_MOVE)) {
-            lastMove = -1;
-            lock = false;
-        }
-    }
-    void updateText(String s) {
+    protected void updateText(String s) {
         s = s.substring(4);
         text.setText(s);
+    }
+    protected void updateView(int move, String symbol) {
+        button[move].setText(symbol);
     }
 
     private JPanel setupBoard() {
@@ -79,12 +56,10 @@ class GameBoard extends JFrame implements TicTacToeProtocol {
         return panel;
     }
 
-    void setPlayerSymbol(String s) {
-        playerSymbol = s;
+    protected void disposeView() {
+        frame.dispose();
     }
-    void setOpponentSymbol(String s) {
-        opponentSymbol = s;
-    }
+    protected void takeTurn() {lock = false;}
 
     private class ButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
@@ -122,14 +97,6 @@ class GameBoard extends JFrame implements TicTacToeProtocol {
 
             else if(e.getSource() == button[8]) {
                 requestMove(8);
-            }
-        }
-
-        private void requestMove(int i) {
-            if(!lock) {
-                lastMove = i;
-                lock = true;
-                client.iostream.println(TTTP_MOVE + i);
             }
         }
     }

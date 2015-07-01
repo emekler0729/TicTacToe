@@ -48,7 +48,7 @@ public class SocketIOStream {
      *
      * @param s The string to be transmitted.
      */
-    public void println(String s) {
+    synchronized public void println(String s) {
         if(!bInhibited) {
             out.println(s);
             if(bFlowControl) {

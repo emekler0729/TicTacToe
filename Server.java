@@ -145,16 +145,39 @@ class Server implements TicTacToeProtocol {
 
             comms.toAll(TTTP_MSG + "Waiting for opponent...");
 
-            String P1Again = comms.fromP1();
-            String P2Again = comms.fromP2();
+            boolean try1 = true;
+            boolean try2 = true;
+            boolean tryAgain = false;
+            String P1Again = "";
+            String P2Again = "";
 
-            if(P1Again.equals(TTTP_EXIT) || P2Again.equals(TTTP_EXIT)) {
-                disconnect();
-            }
+            do {
+                tryAgain = false;
 
-            else if(P1Again.equals(TTTP_PLAY_AGAIN) && P2Again.equals(TTTP_PLAY_AGAIN)) {
-                playAgain();
-            }
+                if(try1) {
+                    P1Again = comms.fromP1();
+                    try1 = false;
+                }
+                if(try2) {
+                    P2Again = comms.fromP2();
+                    try2 = false;
+                }
+
+                if (P1Again.equals(TTTP_EXIT) || P2Again.equals(TTTP_EXIT)) {
+                    disconnect();
+                } else if (P1Again.equals(TTTP_PLAY_AGAIN) && P2Again.equals(TTTP_PLAY_AGAIN)) {
+                    playAgain();
+                }
+                else {
+                    tryAgain = true;
+                    if(!(P1Again.equals(TTTP_PLAY_AGAIN) || P1Again.equals(TTTP_EXIT))) {
+                        try1 = true;
+                    }
+                    if(!(P2Again.equals(TTTP_PLAY_AGAIN) || (P2Again.equals(TTTP_EXIT)))) {
+                        try2 = true;
+                    }
+                }
+            } while(tryAgain);
         }
 
         private int parseMsg(String s) {

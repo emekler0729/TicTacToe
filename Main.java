@@ -76,7 +76,8 @@ public class Main {
             }
         }
         catch(IOException e) {
-            JOptionPane.showMessageDialog(null,"Failed to initialize Client.","Error",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,"Cannot connect to host.","Error",JOptionPane.ERROR_MESSAGE);
+            returnToMenu();
         }
     }
     private static InetSocketAddress getHostAddress() {

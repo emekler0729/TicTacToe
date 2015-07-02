@@ -104,6 +104,9 @@ public class SocketIOStream {
     }
 
     public void close() throws IOException {
+        in.close();
+        out.flush();
+        out.close();
         socket.close();
     }
 }

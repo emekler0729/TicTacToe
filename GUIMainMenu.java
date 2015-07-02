@@ -3,14 +3,15 @@ package io.github.emekler0729.TicTacToe;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 class GUIMainMenu extends JFrame {
-    // Communication link to client program
-
+    private static final ImageIcon titleImage = new ImageIcon(Main.class.getClassLoader().getResource("titlescreen.png"));
     public GUIMainMenu() {
         super("Tic Tac Toe");
 
-        setSize(300,300);
+        setSize(300,380);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
@@ -23,7 +24,7 @@ class GUIMainMenu extends JFrame {
         setVisible(true);
     }
 
-    private static JMenuBar setupMenuBar() {
+    private JMenuBar setupMenuBar() {
         // Create new Menu Bar
         JMenuBar jmb = new JMenuBar();
 
@@ -50,17 +51,18 @@ class GUIMainMenu extends JFrame {
         // Return configured Menu Bar to GUIMainMenu constructor.
         return jmb;
     }
-    private static JPanel setupTitle() {
+    private JPanel setupTitle() {
         JPanel panel = new JPanel();
 
         panel.add(new JLabel("Welcome to Tic Tac Toe!"));
 
         return panel;
     }
-    private static JPanel setupTitleImage() {
+
+    private JPanel setupTitleImage() {
         JPanel panel = new JPanel();
 
-        //panel.add(new JLabel("Insert Picture here."));
+        panel.add(new JLabel(titleImage));
 
         return panel;
     }
@@ -94,7 +96,7 @@ class GUIMainMenu extends JFrame {
             else if(name == "Online") {
                 Main.initializeGame(Main.MULTIPLAYER_MODE);
             }
-        }
+         }
     }
     private static class MenuAction extends AbstractAction {
         String name;

@@ -10,6 +10,9 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
     private JButton button[] = new JButton[9];
     private JTextField text = new JTextField(25);
 
+    private static final ImageIcon X = new ImageIcon(Main.class.getClassLoader().getResource("icons/x.png"));
+    private static final ImageIcon O = new ImageIcon(Main.class.getClassLoader().getResource("icons/o.png"));
+
     GUIGameBoard(GUIClient client) {
         super(client);
         frame = new JFrame("Tic Tac Toe");
@@ -30,7 +33,16 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
         text.setText(s);
     }
     protected void updateView(int move, String symbol) {
-        button[move].setText(symbol);
+        ImageIcon icon;
+
+        if (symbol.equals("X")) {
+            icon = X;
+        }
+        else {
+            icon = O;
+        }
+
+        button[move].setIcon(icon);
     }
 
     private JPanel setupBoard() {

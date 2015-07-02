@@ -14,6 +14,10 @@ abstract class AbstractClient implements TicTacToeProtocol {
         joinGame(adr);
     }
 
+    protected AbstractClient() {
+
+    }
+
     abstract protected class AbstractGameSession extends Thread {
         private boolean bGameOver;
         private boolean bFirstPlayer;

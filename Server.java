@@ -252,6 +252,15 @@ class Server implements TicTacToeProtocol {
                 return "Error";
             }
         }
+
+        public void close() throws IOException {
+            p1Out.flush();
+            p1Out.close();
+            p2Out.flush();
+            p2Out.close();
+            p1In.close();
+            p2In.close();
+        }
     }
     private class GameState {
         private boolean isWon;
@@ -325,11 +334,11 @@ class Server implements TicTacToeProtocol {
 
 
     private void disconnect() {
-        comms.toAll(TTTP_EXIT);
-        comms = null;
-        console.println("All I/O streams shut down.");
-
         try {
+            comms.toAll(TTTP_EXIT);
+            comms.close();
+            comms = null;
+            console.println("All I/O streams shut down.");
             player1.close();
             console.println("Player 1 socket closed.");
             player2.close();

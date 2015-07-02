@@ -9,8 +9,8 @@ class AIClient extends AbstractClient {
     private int difficulty;
 
     AIClient(InetSocketAddress adr, final int DIFFICULTY) throws IOException {
-        super(adr);
         difficulty = DIFFICULTY;
+        joinGame(adr);
     }
 
     class AIGameSession extends AbstractGameSession {

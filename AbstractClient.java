@@ -1,14 +1,17 @@
 package io.github.emekler0729.TicTacToe;
 
+import io.github.emekler0729.TicTacToe.Utility.SocketIOStream;
+
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 abstract class AbstractClient implements TicTacToeProtocol {
     protected AbstractGameSession game;
     protected AbstractGameBoard gameboard;
     protected SocketIOStream iostream;
 
-    protected AbstractClient() {
-
+    protected AbstractClient(InetSocketAddress adr) throws IOException {
+        joinGame(adr);
     }
 
     abstract protected class AbstractGameSession extends Thread {
@@ -72,7 +75,7 @@ abstract class AbstractClient implements TicTacToeProtocol {
         abstract protected void askPlayAgain();
     }
 
-    abstract protected void initializeGame();
+    abstract protected void joinGame(InetSocketAddress adr) throws IOException;
     protected void playAgain() {
         iostream.setInhibited(false);
         iostream.println((TTTP_PLAY_AGAIN));

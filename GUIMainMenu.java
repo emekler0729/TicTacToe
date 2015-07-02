@@ -4,14 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MainMenuGUI extends JFrame {
+class GUIMainMenu extends JFrame {
     // Communication link to client program
-    private static GUIClient client;
 
-    public MainMenuGUI(GUIClient client) {
+    public GUIMainMenu() {
         super("Tic Tac Toe");
-
-        this.client = client;
 
         setSize(300,300);
         setLocationRelativeTo(null);
@@ -50,7 +47,7 @@ public class MainMenuGUI extends JFrame {
         jmb.add(file);
         jmb.add(help);
 
-        // Return configured Menu Bar to MainMenuGUI constructor.
+        // Return configured Menu Bar to GUIMainMenu constructor.
         return jmb;
     }
     private static JPanel setupTitle() {
@@ -67,7 +64,7 @@ public class MainMenuGUI extends JFrame {
 
         return panel;
     }
-    private static JPanel setupButtons() {
+    private JPanel setupButtons() {
         JPanel panel = new JPanel(new FlowLayout());
 
         panel.add(new JButton(new ButtonAction("1P")));
@@ -77,7 +74,7 @@ public class MainMenuGUI extends JFrame {
         return panel;
     }
 
-    private static class ButtonAction extends AbstractAction {
+    private class ButtonAction extends AbstractAction {
         String name;
 
         ButtonAction(String name) {
@@ -87,7 +84,7 @@ public class MainMenuGUI extends JFrame {
 
         public void actionPerformed(ActionEvent e) {
             if(name == "1P") {
-                JOptionPane.showMessageDialog(null,"This mode is not yet implemented.", "Error", JOptionPane.ERROR_MESSAGE);
+                Main.initializeGame(Main.SINGLEPLAYER_MODE);
             }
 
             else if(name == "2P") {
@@ -95,7 +92,7 @@ public class MainMenuGUI extends JFrame {
             }
 
             else if(name == "Online") {
-                client.initializeGame();
+                Main.initializeGame(Main.MULTIPLAYER_MODE);
             }
         }
     }

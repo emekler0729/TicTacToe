@@ -1,4 +1,4 @@
-package io.github.emekler0729.TicTacToe;
+package io.github.emekler0729.TicTacToe.Utility;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -25,7 +25,7 @@ public class SocketIOStream {
     private boolean bInhibited;
     private boolean bFlowControl;
 
-    SocketIOStream(InetSocketAddress adr, boolean enableFlowControl) throws IOException {
+    public SocketIOStream(InetSocketAddress adr, boolean enableFlowControl) throws IOException {
         bInhibited = true;
         bFlowControl = enableFlowControl;
 
@@ -35,7 +35,7 @@ public class SocketIOStream {
         out = new PrintWriter(socket.getOutputStream(),true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
-    SocketIOStream(InetSocketAddress adr) throws IOException {
+    public SocketIOStream(InetSocketAddress adr) throws IOException {
         this(adr, false);
     }
 

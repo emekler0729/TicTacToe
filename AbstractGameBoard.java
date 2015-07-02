@@ -7,7 +7,7 @@ abstract class AbstractGameBoard implements TicTacToeProtocol {
     private int lastMove;
     protected boolean lock = true;
 
-    AbstractGameBoard(AbstractClient client) {
+    protected AbstractGameBoard(AbstractClient client) {
         this.client = client;
     }
 

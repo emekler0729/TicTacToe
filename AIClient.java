@@ -1,11 +1,16 @@
 package io.github.emekler0729.TicTacToe;
 
+import io.github.emekler0729.TicTacToe.Utility.SocketIOStream;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 class AIClient extends AbstractClient {
-    AIClient() {
+    private int difficulty;
 
+    AIClient(InetSocketAddress adr, final int DIFFICULTY) throws IOException {
+        super(adr);
+        difficulty = DIFFICULTY;
     }
 
     class AIGameSession extends AbstractGameSession {
@@ -18,23 +23,16 @@ class AIClient extends AbstractClient {
         }
     }
 
-    protected void initializeGame() {
-        try {
-            iostream = new SocketIOStream(new InetSocketAddress("localhost", 9090),true);
-            gameboard = new AIGameBoard(this);
+    protected void joinGame(InetSocketAddress adr) throws IOException {
+            iostream = new SocketIOStream(adr,true);
+            gameboard = new AIGameBoard(this,difficulty);
             game = new AIGameSession();
-
             game.start();
-        }
-        catch (IOException e) {
-
-        }
     }
     protected void playAgain() {
         super.playAgain();
-        gameboard = new AIGameBoard(this);
+        gameboard = new AIGameBoard(this, difficulty);
         game = new AIGameSession();
-
         game.start();
     }
 }

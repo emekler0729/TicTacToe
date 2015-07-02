@@ -1,4 +1,4 @@
-package io.github.emekler0729.TicTacToe;
+package io.github.emekler0729.TicTacToe.Utility;
 
 import javax.swing.*;
 

@@ -1,5 +1,7 @@
 package io.github.emekler0729.TicTacToe;
 
+import io.github.emekler0729.TicTacToe.Utility.DebugConsole;
+
 import java.net.*;
 import java.io.*;
 import java.util.Date;

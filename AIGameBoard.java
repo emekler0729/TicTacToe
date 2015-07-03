@@ -1,20 +1,20 @@
 package io.github.emekler0729.TicTacToe;
 
-class AIGameBoard extends AbstractGameBoard {
+import io.github.emekler0729.TicTacToe.AIStrategy.*;
+
+public class AIGameBoard extends AbstractGameBoard {
     private String[][] board;
     private AbstractStrategy strategy;
-
-    public static final int EASY_DIFFICULTY = 0;
 
     AIGameBoard(AIClient client, final int DIFFICULTY) {
         super(client);
 
         switch(DIFFICULTY) {
-            case EASY_DIFFICULTY:
-                strategy = new EasyStrategy();
+            case AbstractStrategy.EASY_DIFFICULTY:
+                strategy = new EasyStrategy(this);
                 break;
             default:
-                strategy = new EasyStrategy();
+                strategy = new EasyStrategy(this);
                 break;
         }
 
@@ -32,6 +32,9 @@ class AIGameBoard extends AbstractGameBoard {
     protected void updateView(int move, String symbol) {
         board[move/3][move%3] = symbol;
     }
+    public String[][] getView() {
+        return board;
+    }
 
     protected void takeTurn() {
         lock = false;
@@ -42,19 +45,5 @@ class AIGameBoard extends AbstractGameBoard {
     protected void disposeView() {
         // AI has nothing to dispose
     }
-
-    abstract class AbstractStrategy {
-        AbstractStrategy() {
-
-        }
-
-        abstract public int chooseMove();
-    }
-    class EasyStrategy extends AbstractStrategy {
-        public int chooseMove() {
-            return (int)Math.floor(Math.random()*9);
-        }
-    }
-
 }
 

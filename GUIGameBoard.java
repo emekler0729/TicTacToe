@@ -1,5 +1,7 @@
 package io.github.emekler0729.TicTacToe;
 
+import com.sun.javafx.scene.control.Keystroke;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -47,12 +49,13 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
 
     private JPanel setupBoard() {
         JPanel panel = new JPanel(new GridLayout(3,3));
-
-        ButtonListener listener = new ButtonListener();
+        ButtonAction a;
 
         for(int i = 0; i < 9; i++) {
-            button[i] = new JButton();
-            button[i].addActionListener(listener);
+            a = new ButtonAction(i);
+            button[i] = new JButton(a);
+            button[i].getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(a.getNumpadKey(),a.getCommandString());
+            button[i].getActionMap().put(a.getCommandString(),a);
             panel.add(button[i]);
         }
 
@@ -73,43 +76,54 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
     }
     protected void takeTurn() {lock = false;}
 
-    private class ButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            if(e.getSource() == button[0]) {
-                requestMove(0);
+    private class ButtonAction extends AbstractAction {
+        private int buttonVal;
+        private KeyStroke numpadKey;
+        private String commandString;
+
+        public ButtonAction(int i) {
+            buttonVal = i;
+            commandString = new String(Integer.toString(i));
+
+            switch(i) {
+                case 0:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7,0);
+                    break;
+                case 1:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8,0);
+                    break;
+                case 2:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9,0);
+                    break;
+                case 3:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4,0);
+                    break;
+                case 4:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5,0);
+                    break;
+                case 5:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6,0);
+                    break;
+                case 6:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1,0);
+                    break;
+                case 7:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2,0);
+                    break;
+                case 8:
+                    numpadKey = KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3,0);
+                    break;
             }
 
-            else if(e.getSource() == button[1]) {
-                requestMove(1);
-            }
-
-            else if(e.getSource() == button[2]) {
-                requestMove(2);
-            }
-
-            else if(e.getSource() == button[3]) {
-                requestMove(3);
-            }
-
-            else if(e.getSource() == button[4]) {
-                requestMove(4);
-            }
-
-            else if(e.getSource() == button[5]) {
-                requestMove(5);
-            }
-
-            else if(e.getSource() == button[6]) {
-                requestMove(6);
-            }
-
-            else if(e.getSource() == button[7]) {
-                requestMove(7);
-            }
-
-            else if(e.getSource() == button[8]) {
-                requestMove(8);
-            }
         }
+
+        public void actionPerformed(ActionEvent e) {
+            requestMove(buttonVal);
+        }
+
+        public KeyStroke getNumpadKey() {
+            return numpadKey;
+        }
+        public String getCommandString() { return commandString; }
     }
 }

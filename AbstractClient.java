@@ -10,6 +10,10 @@ abstract class AbstractClient implements TicTacToeProtocol {
     protected AbstractGameBoard gameboard;
     protected SocketIOStream iostream;
 
+    private int winCount;
+    private int lossCount;
+    private int drawCount;
+
     protected AbstractClient(InetSocketAddress adr) throws IOException {
         joinGame(adr);
     }
@@ -63,6 +67,15 @@ abstract class AbstractClient implements TicTacToeProtocol {
             }
             else if (s.equals(TTTP_WIN) || s.equals(TTTP_LOSE) || s.equals(TTTP_DRAW)) {
                 bGameOver = true;
+                if(s.equals(TTTP_WIN)) {
+                    winCount++;
+                }
+                else if(s.equals(TTTP_LOSE)) {
+                    lossCount++;
+                }
+                else {
+                    drawCount++;
+                }
                 showGameOver(s);
             }
             else if (s.equals(TTTP_EXIT)) {
@@ -92,4 +105,8 @@ abstract class AbstractClient implements TicTacToeProtocol {
         iostream = null;
         gameboard.disposeView();
     }
+
+    final protected int getWinCount() {return winCount;}
+    final protected int getLossCount() {return lossCount;}
+    final protected int getDrawCount() {return drawCount;}
 }

@@ -37,7 +37,9 @@ abstract class AbstractGameBoard implements TicTacToeProtocol {
     final protected void setOpponentSymbol(String s) { opponentSymbol = s; }
 
     abstract protected void updateView(int move, String symbol);
+    abstract protected void updateScore(int w,int l,int d);
     abstract protected void disposeView();
+    abstract public Object getView();
 
     abstract protected void takeTurn();
 

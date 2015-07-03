@@ -11,6 +11,9 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
     private JFrame frame;
     private JButton button[] = new JButton[9];
     private JTextField text = new JTextField(25);
+    private JLabel winLabel = new JLabel("0");
+    private JLabel loseLabel = new JLabel("0");
+    private JLabel drawLabel = new JLabel("0");
 
     private static final ImageIcon X = new ImageIcon(Main.class.getClassLoader().getResource("icons/x.png"));
     private static final ImageIcon O = new ImageIcon(Main.class.getClassLoader().getResource("icons/o.png"));
@@ -19,13 +22,14 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
         super(client);
         frame = new JFrame("Tic Tac Toe");
 
-        frame.setSize(300, 320);
+        frame.setSize(300, 370);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
 
         frame.add(setupBoard(),BorderLayout.CENTER);
         frame.add(setupTextField(),BorderLayout.SOUTH);
+        frame.add(setupScoreField(),BorderLayout.NORTH);
 
         frame.setVisible(true);
     }
@@ -45,6 +49,14 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
         }
 
         button[move].setIcon(icon);
+    }
+    protected void updateScore(int w, int l, int d) {
+        winLabel.setText(new String(Integer.toString(w)));
+        loseLabel.setText(new String(Integer.toString(l)));
+        drawLabel.setText(new String(Integer.toString(d)));
+    }
+    public Object getView() {
+        return this;
     }
 
     private JPanel setupBoard() {
@@ -67,6 +79,32 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
         text.setEditable(false);
 
         panel.add(text);
+
+        return panel;
+    }
+    private JPanel setupScoreField() {
+        JPanel panel = new JPanel();
+        JPanel winPanel = new JPanel();
+        JPanel losePanel = new JPanel();
+        JPanel drawPanel = new JPanel();
+        JPanel sepPanel = new JPanel();
+        JPanel sepPanel2 = new JPanel();
+
+        winPanel.add(new JLabel("Wins: "));
+        winPanel.add(winLabel);
+        losePanel.add(new JLabel("Losses: "));
+        losePanel.add(loseLabel);
+        drawPanel.add(new JLabel("Draws: "));
+        drawPanel.add(drawLabel);
+
+        sepPanel.add(new JLabel("-"));
+        sepPanel2.add(new JLabel("-"));
+
+        panel.add(winPanel);
+        panel.add(sepPanel);
+        panel.add(losePanel);
+        panel.add(sepPanel2);
+        panel.add(drawPanel);
 
         return panel;
     }

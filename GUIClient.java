@@ -17,6 +17,7 @@ class GUIClient extends AbstractClient {
         }
 
         protected void showGameOver(String s) {
+            gameboard.updateScore(getWinCount(),getLossCount(),getDrawCount());
             if(s.equals(TTTP_DRAW)) {
                 JOptionPane.showMessageDialog(null, "The game was a draw.", "Game Over!", JOptionPane.PLAIN_MESSAGE);
             }
@@ -52,6 +53,7 @@ class GUIClient extends AbstractClient {
     protected void playAgain() {
         super.playAgain();
         gameboard = new GUIGameBoard(this);
+        gameboard.updateScore(getWinCount(),getLossCount(),getDrawCount());
         game = new GUIGameSession();
         game.start();
     }

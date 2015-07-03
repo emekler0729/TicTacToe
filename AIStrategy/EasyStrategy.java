@@ -12,7 +12,7 @@ public class EasyStrategy extends AbstractStrategy {
         String[][] board;
         boolean goodMove = false;
 
-        board = gameboard.getView();
+        board = (String[][])gameboard.getView();
 
         do {
             move = (int) Math.floor(Math.random() * 9);

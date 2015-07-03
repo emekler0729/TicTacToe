@@ -28,11 +28,14 @@ public class AIGameBoard extends AbstractGameBoard {
     protected void updateText(String s) {
       // AI ignores server MSGs
     }
+    protected void updateScore(int w, int i, int l) {
+
+    }
 
     protected void updateView(int move, String symbol) {
         board[move/3][move%3] = symbol;
     }
-    public String[][] getView() {
+    public Object getView() {
         return board;
     }
 

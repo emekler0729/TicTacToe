@@ -3,16 +3,13 @@ package io.github.emekler0729.TicTacToe.AIStrategy;
 import io.github.emekler0729.TicTacToe.AIGameBoard;
 
 public class EasyStrategy extends AbstractStrategy {
-    public EasyStrategy(AIGameBoard gameboard) {
-        super(gameboard);
+    public EasyStrategy() {
+
     }
 
-    public int chooseMove() {
+    public int chooseMove(String[][] board) {
         int move;
-        String[][] board;
         boolean goodMove = false;
-
-        board = (String[][])gameboard.getView();
 
         do {
             move = (int) Math.floor(Math.random() * 9);

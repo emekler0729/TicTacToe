@@ -71,7 +71,7 @@ public class Main {
             client = new GUIClient(adr);
 
             if (GAME_MODE == SINGLEPLAYER_MODE) {
-                localOpponent = new AIClient(adr, AbstractStrategy.EASY_DIFFICULTY);
+                localOpponent = new AIClient(adr, AbstractStrategy.MEDIUM_DIFFICULTY);
             } else if (GAME_MODE == SPLITSCREEN_MODE) {
 //            localOpponent = new LocalClient(adr);
             }

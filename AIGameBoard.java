@@ -11,10 +11,13 @@ public class AIGameBoard extends AbstractGameBoard {
 
         switch(DIFFICULTY) {
             case AbstractStrategy.EASY_DIFFICULTY:
-                strategy = new EasyStrategy(this);
+                strategy = new EasyStrategy();
+                break;
+            case AbstractStrategy.MEDIUM_DIFFICULTY:
+                strategy = new MediumStrategy();
                 break;
             default:
-                strategy = new EasyStrategy(this);
+                strategy = new EasyStrategy();
                 break;
         }
 
@@ -41,7 +44,7 @@ public class AIGameBoard extends AbstractGameBoard {
 
     protected void takeTurn() {
         lock = false;
-        int move = strategy.chooseMove();
+        int move = strategy.chooseMove(board);
         requestMove(move);
     }
 

@@ -38,6 +38,18 @@ public class SocketIOStream {
     public SocketIOStream(InetSocketAddress adr) throws IOException {
         this(adr, false);
     }
+    public SocketIOStream(Socket socket, boolean enableFlowControl) throws IOException {
+        this.socket = socket;
+
+        bInhibited = true;
+        bFlowControl = enableFlowControl;
+
+        out = new PrintWriter(socket.getOutputStream(),true);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
+    public SocketIOStream(Socket socket) throws IOException {
+        this(socket,false);
+    }
 
 
 
@@ -102,11 +114,12 @@ public class SocketIOStream {
     public void setInhibited(boolean enable) {
         bInhibited = enable;
     }
-
     public void close() throws IOException {
-        in.close();
-        out.flush();
-        out.close();
-        socket.close();
+        if (socket.isConnected()) {
+            in.close();
+            out.flush();
+            out.close();
+            socket.close();
+        }
     }
 }

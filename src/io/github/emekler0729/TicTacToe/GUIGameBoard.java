@@ -1,10 +1,9 @@
 package io.github.emekler0729.TicTacToe;
 
-import com.sun.javafx.scene.control.Keystroke;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 
 class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
@@ -30,6 +29,17 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
         frame.add(setupBoard(),BorderLayout.CENTER);
         frame.add(setupTextField(),BorderLayout.SOUTH);
         frame.add(setupScoreField(),BorderLayout.NORTH);
+
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                try {
+                    client.disconnect();
+                }
+                catch (IOException er) {
+                    System.out.println("Disconnect error occurred.");
+                }
+            }
+        });
 
         frame.setVisible(true);
     }
@@ -114,7 +124,7 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
     }
     protected void takeTurn() {lock = false;}
 
-    private class ButtonAction extends AbstractAction {
+    class ButtonAction extends AbstractAction {
         private int buttonVal;
         private KeyStroke numpadKey;
         private String commandString;

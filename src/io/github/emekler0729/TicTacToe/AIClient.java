@@ -31,8 +31,22 @@ class AIClient extends AbstractClient {
     }
     protected void playAgain() {
         super.playAgain();
-        gameboard = new AIGameBoard(this, difficulty);
-        game = new AIGameSession();
-        game.start();
+        String msg = "";
+        while (!(msg.equals(TTTP_AGAIN) || msg.equals(TTTP_EXIT))) {
+            msg = iostream.readLine();
+        }
+        if (msg.equals(TTTP_AGAIN)) {
+            gameboard = new AIGameBoard(this, difficulty);
+            game = new AIGameSession();
+            game.start();
+        }
+        else {
+            try {
+                disconnect();
+            }
+            catch (IOException e) {
+
+            }
+        }
     }
 }

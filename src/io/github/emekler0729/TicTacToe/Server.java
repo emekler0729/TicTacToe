@@ -1,6 +1,7 @@
 package io.github.emekler0729.TicTacToe;
 
 import io.github.emekler0729.TicTacToe.Utility.DebugConsole;
+import io.github.emekler0729.TicTacToe.Utility.SocketIOStream;
 
 import java.net.*;
 import java.io.*;
@@ -42,14 +43,14 @@ class Server implements TicTacToeProtocol {
                 console.println("Waiting for connection from Player 1...");
                 player1 = listener.accept();
                 console.println("Connection made from Player 1 at " + player1.getInetAddress() + ":" + player1.getPort());
-                comms.setP1IO(new BufferedReader(new InputStreamReader(player1.getInputStream())), new PrintWriter(player1.getOutputStream(), true));
+                comms.setP1IO(player1);
                 console.println("Player 1 I/O streams established.");
                 comms.toP1(TTTP_MSG + "You are Player 1... waiting for Player 2");
 
                 console.println("Waiting for connection from Player 2...");
                 player2 = listener.accept();
                 console.println("Connection made from Player 2 at " + player2.getInetAddress() + ":" + player2.getPort() + ".");
-                comms.setP2IO(new BufferedReader(new InputStreamReader(player2.getInputStream())), new PrintWriter(player2.getOutputStream(), true));
+                comms.setP2IO(player2);
                 console.println("Player 2 I/O streams established.");
                 comms.toP1(TTTP_MSG + "Player 2 has joined... starting the game");
                 comms.toP2(TTTP_MSG + "You are Player 2... starting the game");
@@ -57,8 +58,6 @@ class Server implements TicTacToeProtocol {
 
                 game = new GameSession();
                 game.start();
-
-
             }
             catch(IOException e) {
 
@@ -66,67 +65,77 @@ class Server implements TicTacToeProtocol {
         }
     }
     private class GameSession extends Thread {
-        boolean validMove = false;
-        int move;
-        String msg;
-        char currentPlayer = 'X';
+        private boolean validMove = false;
+        private int move;
+        private String msg;
+        private int currentPlayer;
+        private char currentPlayerSymbol;
+        private char p1Symbol;
+
 
         public GameSession() {
 
         }
         public void run() {
-            state = new GameState();
-
-            comms.toP1(TTTP_SYMBOL + "X");
-            comms.toP2(TTTP_SYMBOL + "O");
-
-            comms.toAll(TTTP_START);
-            comms.toAll(TTTP_MSG + "Player 1's turn.");
+            initializeGameSession();
 
             while(!state.isEnded()) {
-                while(!validMove) {
-                    if(currentPlayer == 'X') {
-                        msg = comms.fromP1();
-                        move = parseMsg(msg);
-                        if (state.isValid(move, currentPlayer)) {
-                            validMove = true;
-                            comms.toP1(TTTP_VALID_MOVE);
-                            comms.toP2(TTTP_OPPONENT_MOVE + move);
-                        }
-                        else {
-                            comms.toP1(TTTP_INVALID_MOVE);
-                            comms.toP1(TTTP_MSG + "Invalid move. Try again.");
-                        }
-                    }
-
-                    else if(currentPlayer == 'O') {
-                        msg = comms.fromP2();
-                        move = parseMsg(msg);
-                        if(state.isValid(move, currentPlayer)) {
-                            validMove = true;
-                            comms.toP1(TTTP_OPPONENT_MOVE + move);
-                            comms.toP2(TTTP_VALID_MOVE);
-                        }
-                        else {
-                            comms.toP2(TTTP_INVALID_MOVE);
-                            comms.toP2(TTTP_MSG + "Invalid move. Try again.");
-                        }
-                    }
-                }
-
-                state.checkState();
-                currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
-
-                if(currentPlayer == 'O') {
-                    comms.toAll(TTTP_MSG + "Player 2's turn.");
-                }
-                else {
-                    comms.toAll(TTTP_MSG + "Player 1's turn.");
-                }
-
-                validMove = false;
+                playGame();
             }
 
+            endGame();
+
+            checkPlayAgain();
+
+        }
+
+        private void initializeGameSession() {
+            state = new GameState();
+
+            currentPlayer = (int)((Math.floor(Math.random()*100)%2)+1);
+
+            if (currentPlayer == 1) {
+                currentPlayerSymbol = p1Symbol = 'X';
+            }
+            else {
+                currentPlayerSymbol = 'X';
+                p1Symbol = 'O';
+            }
+
+            comms.toCurrentPlayer(TTTP_SYMBOL + "X");
+            comms.toOpposingPlayer(TTTP_SYMBOL + "O");
+
+            comms.toAll(TTTP_START);
+            comms.toCurrentPlayer(TTTP_MSG + "Your turn.");
+            comms.toOpposingPlayer(TTTP_MSG + "Opponent's turn.");
+        }
+        private void playGame() {
+            while(!validMove) {
+                msg = comms.fromCurrentPlayer();
+                move = parseMsg(msg);
+                if (move == -999) {
+                    disconnect();
+                }
+                else if (state.isValid(move, currentPlayerSymbol)) {
+                    validMove = true;
+                    comms.toCurrentPlayer(TTTP_VALID_MOVE);
+                    comms.toOpposingPlayer(TTTP_OPPONENT_MOVE + move);
+                } else {
+                    comms.toCurrentPlayer(TTTP_INVALID_MOVE);
+                    comms.toCurrentPlayer(TTTP_MSG + "Invalid move. Try again.");
+                }
+            }
+
+            state.checkState();
+            currentPlayer = currentPlayer == 1 ? 2 : 1;
+            currentPlayerSymbol = currentPlayerSymbol == 'X' ? 'O' : 'X';
+
+            comms.toCurrentPlayer(TTTP_MSG + "Your turn.");
+            comms.toOpposingPlayer(TTTP_MSG + "Opponent's turn.");
+
+            validMove = false;
+        };
+        private void endGame() {
             comms.toAll(TTTP_MSG + "Game Over!");
 
             if(state.isDraw()) {
@@ -134,7 +143,7 @@ class Server implements TicTacToeProtocol {
             }
 
             else {
-                if(state.getWinner() == 'X') {
+                if(state.getWinner() == p1Symbol) {
                     comms.toP1(TTTP_WIN);
                     comms.toP2(TTTP_LOSE);
                 }
@@ -144,9 +153,11 @@ class Server implements TicTacToeProtocol {
                     comms.toP2(TTTP_WIN);
                 }
             }
-
+        };
+        private void checkPlayAgain() {
             comms.toAll(TTTP_MSG + "Waiting for opponent...");
 
+            // Play Again?
             boolean try1 = true;
             boolean try2 = true;
             boolean tryAgain = false;
@@ -180,13 +191,14 @@ class Server implements TicTacToeProtocol {
                     }
                 }
             } while(tryAgain);
-        }
-
+        };
         private int parseMsg(String s) {
             if(s.startsWith(TTTP_MOVE)) {
                 return Integer.parseInt(s.substring(s.length()-1));
             }
-
+            else if(s.equals(TTTP_EXIT)) {
+                return -999;
+            }
             else {
                 return -1;
             }
@@ -194,72 +206,99 @@ class Server implements TicTacToeProtocol {
     }
 
     private class CommDriver {
-        private PrintWriter p1Out;
-        private PrintWriter p2Out;
-
-        private BufferedReader p1In;
-        private BufferedReader p2In;
+        private SocketIOStream p1Stream;
+        private SocketIOStream p2Stream;
+        private int currentPlayerID;
 
         private CommDriver() {
 
         }
 
-        public void setP1IO(BufferedReader in, PrintWriter out) {
-            p1In = in;
-            p1Out = out;
-        }
+        public void setP1IO(Socket p1) {
+            try {
+                p1Stream = new SocketIOStream(p1);
+                p1Stream.setInhibited(false);
+            }
+            catch (IOException e) {
 
-        public void setP2IO(BufferedReader in, PrintWriter out) {
-            p2In = in;
-            p2Out = out;
+            }
+        }
+        public void setP2IO(Socket p2) {
+            try {
+                p2Stream = new SocketIOStream(p2);
+                p2Stream.setInhibited(false);
+            }
+            catch (IOException e) {
+
+            }
         }
 
         public void toAll(String s) {
-            p1Out.println(s);
-            p2Out.println(s);
+            p1Stream.println(s);
+            p2Stream.println(s);
             console.println("Message sent to all: " + s);
         }
+        public void toCurrentPlayer(String s) {
+            currentPlayerID = game.currentPlayer;
+            if (currentPlayerID == 1) {
+                p1Stream.println(s);
+                console.println("Message sent to Player 1: " + s);
+            }
+
+            else {
+                p2Stream.println(s);
+                console.println("Message sent to Player 2: " + s);
+            }
+        }
+        public void toOpposingPlayer(String s) {
+            currentPlayerID = game.currentPlayer;
+            if (currentPlayerID == 2) {
+                p1Stream.println(s);
+                console.println("Message sent to Player 1: " + s);
+            }
+
+            else {
+                p2Stream.println(s);
+                console.println("Message sent to Player 2: " + s);
+            }
+        }
+        public String fromCurrentPlayer() {
+            currentPlayerID = game.currentPlayer;
+            String s;
+            if (currentPlayerID == 1) {
+                s = new String(p1Stream.readLine());
+                console.println("Message received from Player 1: " + s);
+            }
+            else {
+                s = new String(p2Stream.readLine());
+                console.println("Message received from Player 2: " + s);
+            }
+            return s;
+        }
         public void toP1(String s) {
-            p1Out.println(s);
+            p1Stream.println(s);
             console.println("Message sent to Player 1: " + s);
         }
         public void toP2(String s) {
-            p2Out.println(s);
+            p2Stream.println(s);
             console.println("Message sent to Player 2: " + s);
         }
-
         public String fromP1() {
             String s;
-            try {
-                s = new String(p1In.readLine());
-                console.println("Message received from Player 1: " + s);
-                return s;
-            }
-
-            catch(IOException e) {
-                return "Error";
-            }
+            s = new String(p1Stream.readLine());
+            console.println("Message received from Player 1: " + s);
+            return s;
         }
         public String fromP2() {
             String s;
-            try {
-                s = new String(p2In.readLine());
-                console.println("Message received from Player 2: " + s);
-                return s;
-            }
-
-            catch(IOException e) {
-                return "Error";
-            }
+            s = new String(p2Stream.readLine());
+            console.println("Message received from Player 2: " + s);
+            return s;
         }
 
         public void close() throws IOException {
-            p1Out.flush();
-            p1Out.close();
-            p2Out.flush();
-            p2Out.close();
-            p1In.close();
-            p2In.close();
+            p1Stream.close();
+            p2Stream.close();
         }
     }
     private class GameState {
@@ -321,20 +360,24 @@ class Server implements TicTacToeProtocol {
             return winner;
         }
         public boolean isValid(int n, char c) {
-            boolean valid = board[n/3][n%3] == ' ' ? true : false;
+            if (n > -1) {
+                boolean valid = board[n / 3][n % 3] == ' ' ? true : false;
 
-            if (valid) {
-                board[n/3][n%3] = c;
-                turnsTaken++;
+                if (valid) {
+                    board[n / 3][n % 3] = c;
+                    turnsTaken++;
+                }
+
+                return valid;
             }
-
-            return valid;
+            return false;
         }
     }
 
 
     private void disconnect() {
         try {
+            game.interrupt();
             comms.toAll(TTTP_EXIT);
             comms.close();
             comms = null;
@@ -354,6 +397,8 @@ class Server implements TicTacToeProtocol {
         console.dispose();
     }
     private void playAgain() {
+        comms.toAll(TTTP_AGAIN);
+
         game = new GameSession();
 
         game.start();

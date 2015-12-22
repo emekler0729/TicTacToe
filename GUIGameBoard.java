@@ -32,12 +32,12 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
 
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                try {
-                    client.disconnect();
-                }
-                catch (IOException er) {
-                    System.out.println("Disconnect error occurred.");
-                }
+               // try {
+                  //  client.disconnect();
+                //}
+               // catch (IOException er) {
+               //     System.out.println("Disconnect error occurred.");
+               // }
             }
         });
 

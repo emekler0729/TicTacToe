@@ -5,8 +5,6 @@ import io.github.emekler0729.TicTacToe.AIStrategy.AbstractStrategy;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 class GUIMainMenu extends JFrame {
     private static final ImageIcon titleImage = new ImageIcon(Main.class.getClassLoader().getResource("titlescreen.png"));

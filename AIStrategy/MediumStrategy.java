@@ -1,7 +1,5 @@
 package io.github.emekler0729.TicTacToe.AIStrategy;
 
-import io.github.emekler0729.TicTacToe.AIGameBoard;
-
 import java.util.ArrayList;
 
 public class MediumStrategy extends AbstractStrategy {

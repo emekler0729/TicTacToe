@@ -1,7 +1,5 @@
 package io.github.emekler0729.TicTacToe.AIStrategy;
 
-import io.github.emekler0729.TicTacToe.AIGameBoard;
-
 public class EasyStrategy extends AbstractStrategy {
     public EasyStrategy() {
 

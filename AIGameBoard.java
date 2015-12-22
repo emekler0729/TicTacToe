@@ -16,8 +16,10 @@ public class AIGameBoard extends AbstractGameBoard {
             case AbstractStrategy.MEDIUM_DIFFICULTY:
                 strategy = new MediumStrategy();
                 break;
+            case AbstractStrategy.HARD_DIFFICULTY:
+                strategy = new HardStrategy();
             default:
-                strategy = new EasyStrategy();
+                strategy = new MediumStrategy();
                 break;
         }
 

@@ -1,7 +1,6 @@
 package io.github.emekler0729.TicTacToe;
 
 import io.github.emekler0729.TicTacToe.AIStrategy.AbstractStrategy;
-import io.github.emekler0729.TicTacToe.Utility.SocketIOStream;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -13,6 +12,7 @@ public class Main {
     private static AbstractClient localOpponent;
     private static Server localServer;
     private static boolean bDebugEnabled;
+    private static int difficulty = AbstractStrategy.MEDIUM_DIFFICULTY;
 
     static final int SINGLEPLAYER_MODE = 0;
     static final int SPLITSCREEN_MODE = 1;
@@ -71,7 +71,7 @@ public class Main {
             client = new GUIClient(adr);
 
             if (GAME_MODE == SINGLEPLAYER_MODE) {
-                localOpponent = new AIClient(adr, AbstractStrategy.MEDIUM_DIFFICULTY);
+                localOpponent = new AIClient(adr, difficulty);
             } else if (GAME_MODE == SPLITSCREEN_MODE) {
 //            localOpponent = new LocalClient(adr);
             }
@@ -105,5 +105,14 @@ public class Main {
     }
     static void returnToMenu() {
         menu.setVisible(true);
+    }
+    static void setDifficulty(int difficulty) {
+        if (!(difficulty == AbstractStrategy.EASY_DIFFICULTY || difficulty == AbstractStrategy.MEDIUM_DIFFICULTY
+                || difficulty == AbstractStrategy.HARD_DIFFICULTY)) {
+            Main.difficulty = AbstractStrategy.MEDIUM_DIFFICULTY;
+        }
+        else {
+            Main.difficulty = difficulty;
+        }
     }
 }

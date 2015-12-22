@@ -1,5 +1,7 @@
 package io.github.emekler0729.TicTacToe;
 
+import io.github.emekler0729.TicTacToe.AIStrategy.AbstractStrategy;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -31,13 +33,35 @@ class GUIMainMenu extends JFrame {
         // Create new Menus
         JMenu file = new JMenu("File");
         JMenu help = new JMenu("Help");
+        JMenu options = new JMenu("Options");
+        JMenu difficulty = new JMenu ("SinglePlayer Difficulty");
 
         // Set Menu & Menu Item Mnemonics
         file.setMnemonic('F');
         help.setMnemonic('H');
+        options.setMnemonic('O');
+
+        // Add Options menu Menu Items
+        // Setup Difficulty Sub Menu
+        JRadioButtonMenuItem easy = new JRadioButtonMenuItem(new MenuAction("Easy"));
+        JRadioButtonMenuItem medium = new JRadioButtonMenuItem(new MenuAction("Medium"));
+        JRadioButtonMenuItem hard = new JRadioButtonMenuItem(new MenuAction("Hard"));
+        medium.setSelected(true);
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(easy);
+        group.add(medium);
+        group.add(hard);
+
+        difficulty.add(easy);
+        difficulty.add(medium);
+        difficulty.add(hard);
+
+        options.add(difficulty);
+
 
         // Add File menu Menu Items
-        file.add(new MenuAction("Options", 'O'));
+        file.add(options);
         file.addSeparator();
         file.add(new MenuAction("Exit", 'E'));
 
@@ -121,8 +145,14 @@ class GUIMainMenu extends JFrame {
                 JOptionPane.showMessageDialog(null, "Source code at https://github.com/emekler0729/TicTacToe");
             }
 
-            else if (name.equals("Options")) {
-                JOptionPane.showMessageDialog(null, "This menu is not yet implemented.", "Error", JOptionPane.ERROR_MESSAGE);
+            else if (name.equals("Easy")) {
+                Main.setDifficulty(AbstractStrategy.EASY_DIFFICULTY);
+            }
+            else if (name.equals("Medium")) {
+                Main.setDifficulty(AbstractStrategy.MEDIUM_DIFFICULTY);
+            }
+            else if (name.equals("Hard")) {
+                Main.setDifficulty(AbstractStrategy.HARD_DIFFICULTY);
             }
         }
     }

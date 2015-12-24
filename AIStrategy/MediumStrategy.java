@@ -9,9 +9,19 @@ public class MediumStrategy extends AbstractStrategy {
 
     public int chooseMove(String[][] board) {
         int move;
+        Option bestOption;
+
+        scanBoard(board);
+
+        bestOption = Option.getBestOption();
+
+        move = bestOption.getRow()*3+bestOption.getColumn();
+
+        return move;
+    }
+    protected void scanBoard(String[][] board) {
         Line line;
         String[] lineString = new String[3];
-        Option bestOption;
 
         // Scan Rows
         for(int i = 0; i < 3; i++) {
@@ -46,15 +56,8 @@ public class MediumStrategy extends AbstractStrategy {
         }
         line = new Line(lineString,Line.DIAGONAL,1);
         scanLine(line);
-
-        bestOption = Option.getBestOption();
-
-        move = bestOption.getRow()*3+bestOption.getColumn();
-
-        return move;
     }
-
-    private void scanLine(Line line) {
+    protected void scanLine(Line line) {
         int xCount = 0;
         int oCount = 0;
         String v;
@@ -90,8 +93,8 @@ public class MediumStrategy extends AbstractStrategy {
             }
         }
     }
-
 }
+
 
 class Option {
     private int row;
@@ -175,6 +178,7 @@ class Option {
         ignores = new ArrayList<Option>();
     }
 }
+
 class Line {
     public static final int ROW = 0;
     public static final int COLUMN = 1;

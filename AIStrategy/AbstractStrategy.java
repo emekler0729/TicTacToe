@@ -12,4 +12,3 @@ abstract public class AbstractStrategy {
 
     abstract public int chooseMove(String[][] board);
 }
-

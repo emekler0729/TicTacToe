@@ -12,7 +12,7 @@ public class Main {
     private static AbstractClient localOpponent;
     private static Server localServer;
     private static boolean bDebugEnabled;
-    private static int difficulty = AbstractStrategy.MEDIUM_DIFFICULTY;
+    private static int difficulty = AbstractStrategy.HARD_DIFFICULTY;
 
     static final int SINGLEPLAYER_MODE = 0;
     static final int SPLITSCREEN_MODE = 1;

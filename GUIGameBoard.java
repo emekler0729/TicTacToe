@@ -17,13 +17,13 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
     private static final ImageIcon X = new ImageIcon(Main.class.getClassLoader().getResource("icons/x.png"));
     private static final ImageIcon O = new ImageIcon(Main.class.getClassLoader().getResource("icons/o.png"));
 
-    GUIGameBoard(GUIClient client) {
+    GUIGameBoard(final GUIClient client) {
         super(client);
         frame = new JFrame("Tic Tac Toe");
 
         frame.setSize(300, 370);
         frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
 
         frame.add(setupBoard(),BorderLayout.CENTER);
@@ -32,12 +32,12 @@ class GUIGameBoard extends AbstractGameBoard implements TicTacToeProtocol {
 
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-               // try {
-                  //  client.disconnect();
-                //}
-               // catch (IOException er) {
-               //     System.out.println("Disconnect error occurred.");
-               // }
+                try {
+                    client.disconnect();
+                }
+                catch (IOException er) {
+                    System.out.println("Disconnect error occurred.");
+                }
             }
         });
 

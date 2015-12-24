@@ -17,6 +17,8 @@ class Server implements TicTacToeProtocol {
     private CommDriver comms;
     private DebugConsole console;
 
+    private final static int EXIT_CODE = -1;
+
     public Server(boolean enableDebug, int port) throws IOException {
 
         console = new DebugConsole(enableDebug, "Tic Tac Toe Server Console");
@@ -76,6 +78,7 @@ class Server implements TicTacToeProtocol {
         public GameSession() {
 
         }
+
         public void run() {
             initializeGameSession();
 
@@ -86,13 +89,14 @@ class Server implements TicTacToeProtocol {
             endGame();
 
             checkPlayAgain();
-
         }
 
         private void initializeGameSession() {
             state = new GameState();
 
-            currentPlayer = (int)((Math.floor(Math.random()*100)%2)+1);
+            // currentPlayer = (int)((Math.floor(Math.random()*100)%2)+1);
+
+            currentPlayer = 1;
 
             if (currentPlayer == 1) {
                 currentPlayerSymbol = p1Symbol = 'X';
@@ -113,7 +117,7 @@ class Server implements TicTacToeProtocol {
             while(!validMove) {
                 msg = comms.fromCurrentPlayer();
                 move = parseMsg(msg);
-                if (move == -999) {
+                if (move == EXIT_CODE) {
                     disconnect();
                 }
                 else if (state.isValid(move, currentPlayerSymbol)) {
@@ -196,11 +200,8 @@ class Server implements TicTacToeProtocol {
             if(s.startsWith(TTTP_MOVE)) {
                 return Integer.parseInt(s.substring(s.length()-1));
             }
-            else if(s.equals(TTTP_EXIT)) {
-                return -999;
-            }
             else {
-                return -1;
+                return EXIT_CODE;
             }
         }
     }
@@ -377,9 +378,8 @@ class Server implements TicTacToeProtocol {
 
     private void disconnect() {
         try {
-            game.interrupt();
             comms.toAll(TTTP_EXIT);
-            comms.close();
+            //comms.close();
             comms = null;
             console.println("All I/O streams shut down.");
             player1.close();
